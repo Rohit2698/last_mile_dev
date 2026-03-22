@@ -7,6 +7,7 @@ import { SearchAndViewToggle } from "./components/SearchAndViewToggle"
 import { DispensaryCardView } from "./components/DispensaryCardView"
 import { DispensaryTableView } from "./components/DispensaryTableView"
 import { DispensaryDetailDialog } from "./components/DispensaryDetailDialog"
+import { DocumentReviewDialog } from "./components/DocumentReviewDialog"
 import { Pagination } from "./components/Pagination"
 
 export default function DispensaryApprovalPage() {
@@ -19,6 +20,8 @@ export default function DispensaryApprovalPage() {
     selectedDispensary,
     isDetailOpen,
     viewMode,
+    isReviewDialogOpen,
+    reviewAction,
     handleVerify,
     handleUnverify,
     viewDetails,
@@ -26,6 +29,9 @@ export default function DispensaryApprovalPage() {
     handlePageChange,
     handleViewModeChange,
     closeDetailDialog,
+    handleOpenReviewDialog,
+    handleCloseReviewDialog,
+    handleConfirmReview,
   } = useDispensaryApproval()
 
   function renderContent() {
@@ -91,6 +97,15 @@ export default function DispensaryApprovalPage() {
         onClose={closeDetailDialog}
         onVerify={handleVerify}
         onUnverify={handleUnverify}
+        onApproveDocument={(documentId) => handleOpenReviewDialog(documentId, "approve")}
+        onRejectDocument={(documentId) => handleOpenReviewDialog(documentId, "reject")}
+      />
+
+      <DocumentReviewDialog
+        isOpen={isReviewDialogOpen}
+        action={reviewAction}
+        onClose={handleCloseReviewDialog}
+        onConfirm={handleConfirmReview}
       />
     </div>
   )

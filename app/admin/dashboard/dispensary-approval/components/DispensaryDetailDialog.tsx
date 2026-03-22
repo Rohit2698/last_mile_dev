@@ -17,6 +17,8 @@ interface DispensaryDetailDialogProps {
   onClose: () => void
   onVerify: (dispensaryId: string) => void
   onUnverify: (dispensaryId: string) => void
+  onApproveDocument: (documentId: string) => void
+  onRejectDocument: (documentId: string) => void
 }
 
 export function DispensaryDetailDialog({
@@ -25,6 +27,8 @@ export function DispensaryDetailDialog({
   onClose,
   onVerify,
   onUnverify,
+  onApproveDocument,
+  onRejectDocument,
 }: DispensaryDetailDialogProps) {
   if (!dispensary) {
     return null
@@ -136,6 +140,26 @@ export function DispensaryDetailDialog({
                         <span className="font-medium">Review Notes:</span> {doc.reviewNotes}
                       </p>
                     )}
+                    {doc.status === "PENDING" && (
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => onApproveDocument(doc.id)}
+                        >
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Approve
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => onRejectDocument(doc.id)}
+                        >
+                          <XCircle className="h-3 w-3 mr-1" />
+                          Reject
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -147,7 +171,9 @@ export function DispensaryDetailDialog({
             Close
           </Button>
           {!dispensary.isVerified && (
-            <Button onClick={() => onVerify(dispensary.id)}>
+            <Button 
+            disabled={dispensary.VerificationDocument?.some(doc => doc.status === "PENDING" || doc.status === "REJECTED")}
+            onClick={() => onVerify(dispensary.id)}>
               <CheckCircle className="h-4 w-4 mr-2" />
               Verify Dispensary
             </Button>

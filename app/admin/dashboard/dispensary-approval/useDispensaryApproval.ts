@@ -12,6 +12,9 @@ export function useDispensaryApproval() {
   const [selectedDispensary, setSelectedDispensary] = useState<Dispensary | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("table")
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false)
+  const [reviewAction, setReviewAction] = useState<"approve" | "reject" | null>(null)
+  const [reviewDocumentId, setReviewDocumentId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchDispensaries()
@@ -110,6 +113,65 @@ export function useDispensaryApproval() {
     }
   }
 
+  const refreshSelectedDispensary = async (dispensaryId: string) => {
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await apiClient.get(`/admin/dispensaries/${dispensaryId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (response.data.success) {
+        setSelectedDispensary(response.data.data)
+      }
+    } catch (error) {
+      console.error("Error refreshing dispensary details:", error)
+    }
+  }
+
+  const handleOpenReviewDialog = (documentId: string, action: "approve" | "reject") => {
+    setReviewDocumentId(documentId)
+    setReviewAction(action)
+    setIsReviewDialogOpen(true)
+  }
+
+  const handleCloseReviewDialog = () => {
+    setIsReviewDialogOpen(false)
+    setReviewDocumentId(null)
+    setReviewAction(null)
+  }
+
+  const handleConfirmReview = async (notes: string) => {
+    if (!reviewDocumentId || !reviewAction) return
+
+    try {
+      const token = localStorage.getItem("adminToken")
+      const endpoint = reviewAction === "approve"
+        ? `/admin/verification-documents/${reviewDocumentId}/approve`
+        : `/admin/verification-documents/${reviewDocumentId}/reject`
+
+      const response = await apiClient.post(
+        endpoint,
+        { notes: notes || undefined },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+
+      if (response.data.success) {
+        toast.success(`Document ${reviewAction === "approve" ? "approved" : "rejected"} successfully`)
+        handleCloseReviewDialog()
+
+        if (selectedDispensary) {
+          await refreshSelectedDispensary(selectedDispensary.id)
+        }
+      }
+    } catch (error) {
+      console.error("Error reviewing document:", error)
+      const errorMessage = error instanceof Error && "response" in error
+        ? (error as any).response?.data?.message // eslint-disable-line @typescript-eslint/no-explicit-any
+        : `Failed to ${reviewAction} document`
+      toast.error(errorMessage)
+    }
+  }
+
   const handleSearchChange = (value: string) => {
     setSearchTerm(value)
     setCurrentPage(1)
@@ -136,6 +198,8 @@ export function useDispensaryApproval() {
     selectedDispensary,
     isDetailOpen,
     viewMode,
+    isReviewDialogOpen,
+    reviewAction,
     handleVerify,
     handleUnverify,
     viewDetails,
@@ -143,5 +207,8 @@ export function useDispensaryApproval() {
     handlePageChange,
     handleViewModeChange,
     closeDetailDialog,
+    handleOpenReviewDialog,
+    handleCloseReviewDialog,
+    handleConfirmReview,
   }
 }

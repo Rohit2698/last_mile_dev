@@ -41,8 +41,17 @@ export function DashboardHeader({ user, logout }: DashboardHeaderProps) {
           <h1 className="text-xl font-semibold">Dashboard</h1>
         </div>
 
-        {/* Right side - notifications, theme toggle, profile */}
         <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge className={`text-sm font-medium capitalize`}>
+                {user?.verificationStatus.replace(/_/g, " ")} {/* Display the verification status */}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              {`Current status of your account verification: ${user?.verificationStatus.replace(/_/g, " ")}`}
+            </TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger>
               {user?.isVerified ? (

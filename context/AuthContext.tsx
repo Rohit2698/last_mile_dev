@@ -1,5 +1,6 @@
 "use client"
 
+import { VerificationStatusType } from "@/app/api/react-query/auth"
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
 export type User = {
@@ -8,6 +9,7 @@ export type User = {
   name: string
   token: string
   isVerified: boolean
+  verificationStatus: VerificationStatusType
 }
 
 interface AuthContextType {

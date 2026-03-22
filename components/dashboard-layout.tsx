@@ -12,7 +12,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, role }: DashboardLayoutProps) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, logout, user } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <DashboardHeader />
+        <DashboardHeader user={user} logout={logout} />
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto bg-background">

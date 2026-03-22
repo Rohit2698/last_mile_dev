@@ -11,11 +11,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { useAuth } from "@/context/AuthContext"
+import { User as UserType } from "@/context/AuthContext"
 import { useRouter } from "next/navigation"
+import { Badge } from "./ui/badge"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 
-export function DashboardHeader() {
-  const { user, logout } = useAuth()
+type DashboardHeaderProps = {
+  user: UserType | null
+  logout: () => void
+}
+export function DashboardHeader({ user, logout }: DashboardHeaderProps) {
   const router = useRouter()
 
   const handleLogout = () => {
@@ -38,6 +43,25 @@ export function DashboardHeader() {
 
         {/* Right side - notifications, theme toggle, profile */}
         <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger>
+              {user?.isVerified ? (
+                <Badge className="text-sm bg-green-500 font-medium dark:bg-green-500 dark:text-white">
+                  Verified
+                </Badge>
+              ) : (
+                <Badge className="text-sm bg-red-500 font-medium dark:bg-red-500 dark:text-white">
+                  Not Verified
+                </Badge>
+              )}
+            </TooltipTrigger>
+            <TooltipContent>
+              {user?.isVerified
+                ? "Your account is verified"
+                : "Your account is not verified"}
+            </TooltipContent>
+          </Tooltip>
+
           {/* Notification Bell */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
@@ -58,7 +82,9 @@ export function DashboardHeader() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-sm font-medium leading-none">
+                    {user?.name}
+                  </p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {user?.email}
                   </p>
@@ -70,9 +96,7 @@ export function DashboardHeader() {
               </DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
-                Logout
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

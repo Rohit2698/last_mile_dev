@@ -2,11 +2,12 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
-interface User {
+export type User = {
   id: string
   email: string
   name: string
   token: string
+  isVerified: boolean
 }
 
 interface AuthContextType {

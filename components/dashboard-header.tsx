@@ -12,12 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { User as UserType } from "@/context/AuthContext"
+import { AdminUser } from "@/context/AdminAuthContext"
 import { useRouter } from "next/navigation"
 import { Badge } from "./ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 
 type DashboardHeaderProps = {
-  user: UserType | null
+  user: UserType | AdminUser | null
   logout: () => void
 }
 export function DashboardHeader({ user, logout }: DashboardHeaderProps) {
@@ -42,34 +43,38 @@ export function DashboardHeader({ user, logout }: DashboardHeaderProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger>
-              <Badge className={`text-sm font-medium capitalize`}>
-                {user?.verificationStatus.replace(/_/g, " ")} {/* Display the verification status */}
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>
-              {`Current status of your account verification: ${user?.verificationStatus.replace(/_/g, " ")}`}
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              {user?.isVerified ? (
-                <Badge className="text-sm bg-green-500 font-medium dark:bg-green-500 dark:text-white">
-                  Verified
+          {(user as UserType)?.verificationStatus && (
+            <Tooltip>
+              <TooltipTrigger>
+                <Badge className={`text-sm font-medium capitalize`}>
+                  {(user as UserType)?.verificationStatus.replace(/_/g, " ")} {/* Display the verification status */}
                 </Badge>
-              ) : (
-                <Badge className="text-sm bg-red-500 font-medium dark:bg-red-500 dark:text-white">
-                  Not Verified
-                </Badge>
-              )}
-            </TooltipTrigger>
-            <TooltipContent>
-              {user?.isVerified
-                ? "Your account is verified"
-                : "Your account is not verified"}
-            </TooltipContent>
-          </Tooltip>
+              </TooltipTrigger>
+              <TooltipContent>
+                {`Current status of your account verification: ${(user as UserType)?.verificationStatus.replace(/_/g, " ")}`}
+              </TooltipContent>
+            </Tooltip>
+          )}
+          {typeof (user as UserType)?.isVerified !== 'undefined' && (
+            <Tooltip>
+              <TooltipTrigger>
+                {(user as UserType)?.isVerified ? (
+                  <Badge className="text-sm bg-green-500 font-medium dark:bg-green-500 dark:text-white">
+                    Verified
+                  </Badge>
+                ) : (
+                  <Badge className="text-sm bg-red-500 font-medium dark:bg-red-500 dark:text-white">
+                    Not Verified
+                  </Badge>
+                )}
+              </TooltipTrigger>
+              <TooltipContent>
+                {(user as UserType)?.isVerified
+                  ? "Your account is verified"
+                  : "Your account is not verified"}
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           {/* Notification Bell */}
           <Button variant="ghost" size="icon" className="relative">

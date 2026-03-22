@@ -6,6 +6,7 @@ import { LayoutGrid, Table } from "lucide-react"
 import { useOrdersPage } from "./useOrdersPage"
 import { OrderCardView } from "./OrderCardView"
 import { OrderTableView } from "./OrderTableView"
+import { CreateOrderModal } from "./CreateOrderModal"
 
 export default function OrdersPage() {
   const {
@@ -17,6 +18,9 @@ export default function OrdersPage() {
     isError,
     currentPage,
     handlePageChange,
+    isCreateModalOpen,
+    openCreateModal,
+    closeCreateModal,
   } = useOrdersPage()
 
   return (
@@ -38,7 +42,7 @@ export default function OrdersPage() {
             >
               {viewMode === "card" ? <Table className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
             </Button>
-            <Button>Create New Order</Button>
+            <Button onClick={openCreateModal}>Create New Order</Button>
           </div>
         </div>
 
@@ -95,6 +99,11 @@ export default function OrdersPage() {
           </>
         )}
       </div>
+
+      <CreateOrderModal
+        open={isCreateModalOpen}
+        onOpenChange={closeCreateModal}
+      />
     </DashboardLayout>
   )
 }

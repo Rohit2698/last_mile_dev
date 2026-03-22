@@ -5,6 +5,7 @@ import { ViewMode } from "./util"
 export const useOrdersPage = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("card")
   const [currentPage, setCurrentPage] = useState(1)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const pageSize = 20
 
   const { data, isLoading, isError, error } = useOrdersQuery({
@@ -20,6 +21,14 @@ export const useOrdersPage = () => {
     setCurrentPage(page)
   }
 
+  const openCreateModal = () => {
+    setIsCreateModalOpen(true)
+  }
+
+  const closeCreateModal = () => {
+    setIsCreateModalOpen(false)
+  }
+
   return {
     viewMode,
     toggleViewMode,
@@ -30,5 +39,8 @@ export const useOrdersPage = () => {
     error,
     currentPage,
     handlePageChange,
+    isCreateModalOpen,
+    openCreateModal,
+    closeCreateModal,
   }
 }

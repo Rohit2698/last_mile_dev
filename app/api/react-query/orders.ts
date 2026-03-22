@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import apiClient from "@/lib/apiClient"
 
 export interface Order {
@@ -32,6 +32,26 @@ interface OrdersResponse {
   }
 }
 
+interface CreateOrderResponse {
+  success: boolean
+  message: string
+  data: Order
+}
+
+export interface CreateOrderData {
+  noOfItems: number
+  customerName: string
+  customerPhone: string
+  deliveryAddress: string
+  primaryTimeSlot: string
+  secondaryTimeSlot?: string
+  productTotal: number
+  deliveryFee: number
+  deliveryDate: string
+  deliveryNotes?: string
+  posOrderId?: string
+}
+
 interface OrdersQueryParams {
   page?: number
   limit?: number
@@ -48,6 +68,24 @@ export const useOrdersQuery = (params?: OrdersQueryParams) => {
         },
       })
       return response.data
+    },
+  })
+}
+
+export const useCreateOrderMutation = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (data: CreateOrderData) => {
+      const response = await apiClient.post<CreateOrderResponse>(
+        "/dispensary/orders",
+        data
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      // Invalidate orders query to refetch the list
+      queryClient.invalidateQueries({ queryKey: ["orders"] })
     },
   })
 }

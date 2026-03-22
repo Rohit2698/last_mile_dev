@@ -7,6 +7,9 @@ import { useOrdersPage } from "./useOrdersPage"
 import { OrderCardView } from "./OrderCardView"
 import { OrderTableView } from "./OrderTableView"
 import { CreateOrderModal } from "./CreateOrderModal"
+import { ConfirmationModal } from "@/components/ConfirmationModal"
+import { useDeleteOrderMutation } from "@/app/api/react-query/orders"
+import { toast } from "react-toastify"
 
 export default function OrdersPage() {
   const {
@@ -23,7 +26,26 @@ export default function OrdersPage() {
     openEditModal,
     closeModal,
     editingOrder,
+    deletingOrder,
+    openDeleteModal,
+    closeDeleteModal,
   } = useOrdersPage()
+
+  const deleteOrderMutation = useDeleteOrderMutation()
+
+  const handleDeleteOrder = () => {
+    if (!deletingOrder) return
+
+    deleteOrderMutation.mutate(deletingOrder.id, {
+      onSuccess: () => {
+        toast.success("Order deleted successfully")
+        closeDeleteModal()
+      },
+      onError: () => {
+        toast.error("Failed to delete order")
+      },
+    })
+  }
 
   return (
     <DashboardLayout role="dispensary">
@@ -65,9 +87,17 @@ export default function OrdersPage() {
         {!isLoading && !isError && (
           <>
             {viewMode === "card" ? (
-              <OrderCardView orders={orders} onEditOrder={openEditModal} />
+              <OrderCardView
+                orders={orders}
+                onEditOrder={openEditModal}
+                onDeleteOrder={openDeleteModal}
+              />
             ) : (
-              <OrderTableView orders={orders} onEditOrder={openEditModal} />
+              <OrderTableView
+                orders={orders}
+                onEditOrder={openEditModal}
+                onDeleteOrder={openDeleteModal}
+              />
             )}
 
             {meta && meta.totalPages > 1 && (
@@ -106,6 +136,18 @@ export default function OrdersPage() {
         open={isCreateModalOpen}
         onOpenChange={closeModal}
         order={editingOrder}
+      />
+
+      <ConfirmationModal
+        open={!!deletingOrder}
+        onOpenChange={(open) => !open && closeDeleteModal()}
+        onConfirm={handleDeleteOrder}
+        title="Delete Order"
+        description={`Are you sure you want to delete order ${deletingOrder?.posOrderId || deletingOrder?.id.slice(0, 8)}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={deleteOrderMutation.isPending}
+        variant="destructive"
       />
     </DashboardLayout>
   )

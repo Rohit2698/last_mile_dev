@@ -13,9 +13,10 @@ import { formatPhone } from "@/lib/utils"
 interface OrderCardViewProps {
   orders: Order[]
   onEditOrder?: (order: Order) => void
+  onDeleteOrder?: (order: Order) => void
 }
 
-export const OrderCardView = ({ orders, onEditOrder }: OrderCardViewProps) => {
+export const OrderCardView = ({ orders, onEditOrder, onDeleteOrder }: OrderCardViewProps) => {
   if (orders.length === 0) {
     return (
       <Card className="p-12 text-center">
@@ -37,7 +38,11 @@ export const OrderCardView = ({ orders, onEditOrder }: OrderCardViewProps) => {
                 <Badge variant={getStatusBadgeVariant(order.status)} className="text-xs">
                   {formatStatus(order.status)}
                 </Badge>
-                <OrderActionsMenu order={order} onEditDetails={onEditOrder} />
+                <OrderActionsMenu
+                  order={order}
+                  onEditDetails={onEditOrder}
+                  onDeleteOrder={onDeleteOrder}
+                />
               </div>
             </div>
 

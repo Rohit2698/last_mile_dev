@@ -139,3 +139,26 @@ export const useUpdateOrderMutation = () => {
     },
   })
 }
+
+interface DeleteOrderResponse {
+  success: boolean
+  message: string
+  data: null
+}
+
+export const useDeleteOrderMutation = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (orderId: string) => {
+      const response = await apiClient.delete<DeleteOrderResponse>(
+        `/dispensary/orders/${orderId}`
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      // Invalidate orders query to refetch the list
+      queryClient.invalidateQueries({ queryKey: ["orders"] })
+    },
+  })
+}

@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreVertical, Eye, Edit, ArrowRight } from "lucide-react"
+import { MoreVertical, Eye, Edit, ArrowRight, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -18,12 +18,14 @@ interface OrderActionsMenuProps {
   order: Order
   onViewDetails?: (order: Order) => void
   onEditDetails?: (order: Order) => void
+  onDeleteOrder?: (order: Order) => void
 }
 
 export const OrderActionsMenu = ({
   order,
   onViewDetails,
   onEditDetails,
+  onDeleteOrder,
 }: OrderActionsMenuProps) => {
   const updateStatusMutation = useUpdateOrderStatusMutation()
   const nextStatus = getNextStatus(order.status)
@@ -76,6 +78,14 @@ export const OrderActionsMenu = ({
             </DropdownMenuItem>
           </>
         )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => onDeleteOrder?.(order)}
+          className="text-destructive focus:text-destructive"
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete Order
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

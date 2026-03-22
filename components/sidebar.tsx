@@ -91,7 +91,7 @@ export function Sidebar({ role }: SidebarProps) {
               )}
               title={isCollapsed ? item.label : undefined}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
+              <Icon className="h-5 w-5 shrink-0" />
               {!isCollapsed && <span>{item.label}</span>}
             </Link>
           )

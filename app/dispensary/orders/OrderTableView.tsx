@@ -20,9 +20,10 @@ import { formatPhone } from "@/lib/utils"
 interface OrderTableViewProps {
   orders: Order[]
   onEditOrder?: (order: Order) => void
+  onDeleteOrder?: (order: Order) => void
 }
 
-export const OrderTableView = ({ orders, onEditOrder }: OrderTableViewProps) => {
+export const OrderTableView = ({ orders, onEditOrder, onDeleteOrder }: OrderTableViewProps) => {
   if (orders.length === 0) {
     return (
       <div className="border rounded-lg p-12 text-center">
@@ -67,7 +68,11 @@ export const OrderTableView = ({ orders, onEditOrder }: OrderTableViewProps) => 
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <OrderActionsMenu order={order} onEditDetails={onEditOrder} />
+                <OrderActionsMenu
+                  order={order}
+                  onEditDetails={onEditOrder}
+                  onDeleteOrder={onDeleteOrder}
+                />
               </TableCell>
             </TableRow>
           ))}

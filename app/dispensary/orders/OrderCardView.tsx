@@ -17,7 +17,12 @@ interface OrderCardViewProps {
   onViewOrder?: (order: Order) => void
 }
 
-export const OrderCardView = ({ orders, onEditOrder, onDeleteOrder, onViewOrder }: OrderCardViewProps) => {
+export const OrderCardView = ({
+  orders,
+  onEditOrder,
+  onDeleteOrder,
+  onViewOrder,
+}: OrderCardViewProps) => {
   if (orders.length === 0) {
     return (
       <Card className="p-12 text-center">
@@ -36,9 +41,13 @@ export const OrderCardView = ({ orders, onEditOrder, onDeleteOrder, onViewOrder 
                 #{order.posOrderId || order.id.slice(0, 8)}
               </h3>
               <div className="flex items-center gap-1">
-                <Badge variant={getStatusBadgeVariant(order.status)} className="text-xs">
+                <Badge
+                  variant={getStatusBadgeVariant(order.status)}
+                  className="text-xs"
+                >
                   {formatStatus(order.status)}
                 </Badge>
+
                 <OrderActionsMenu
                   order={order}
                   onViewDetails={onViewOrder}
@@ -51,7 +60,9 @@ export const OrderCardView = ({ orders, onEditOrder, onDeleteOrder, onViewOrder 
             <div className="space-y-2 text-sm">
               <div>
                 <p className="font-medium truncate">{order.customerName}</p>
-                <p className="text-xs text-muted-foreground truncate">{formatPhone(order.customerPhone)}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {formatPhone(order.customerPhone)}
+                </p>
               </div>
 
               <div className="pt-2 border-t">
@@ -62,7 +73,9 @@ export const OrderCardView = ({ orders, onEditOrder, onDeleteOrder, onViewOrder 
               <div className="flex items-center justify-between pt-2 border-t">
                 <span className="text-xs text-muted-foreground">Total</span>
                 <span className="font-semibold">
-                  {formatCurrency(Number(order.productTotal) + Number(order.deliveryFee))}
+                  {formatCurrency(
+                    Number(order.productTotal) + Number(order.deliveryFee),
+                  )}
                 </span>
               </div>
             </div>

@@ -30,8 +30,7 @@ export function DashboardHeader({ user, logout }: DashboardHeaderProps) {
   }
 
   const handleProfile = () => {
-    // TODO: Implement profile navigation
-    console.log("Navigate to profile")
+    router.push("/dispensary/profile")
   }
 
   return (
@@ -45,13 +44,18 @@ export function DashboardHeader({ user, logout }: DashboardHeaderProps) {
         <div className="flex items-center gap-2">
           {(user as UserType)?.verificationStatus && (
             <Tooltip>
-              <TooltipTrigger>
-                <Badge className={`text-sm font-medium capitalize`}>
-                  {(user as UserType)?.verificationStatus.replace(/_/g, " ")} {/* Display the verification status */}
+              <TooltipTrigger asChild>
+                <Badge
+                  className={`text-sm font-medium capitalize cursor-pointer`}
+                  onClick={() => router.push("/dispensary/profile")}
+                >
+                  {(user as UserType)?.verificationStatus.replace(/_/g, " ")}
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                {`Current status of your account verification: ${(user as UserType)?.verificationStatus.replace(/_/g, " ")}`}
+                {(user as UserType)?.verificationStatus === "WAITING_FOR_DOCUMENT"
+                  ? "Click to upload your verification documents"
+                  : `Verification status: ${(user as UserType)?.verificationStatus.replace(/_/g, " ")}`}
               </TooltipContent>
             </Tooltip>
           )}

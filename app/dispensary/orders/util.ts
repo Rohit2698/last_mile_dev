@@ -8,15 +8,21 @@ export const createOrderSchema = z.object({
   deliveryAddress: z.string().min(5, "Delivery address is required"),
   primaryTimeSlot: z.string().min(1, "Primary time slot is required"),
   secondaryTimeSlot: z.string().optional(),
-  noOfItems: z.number().min(1, "At least 1 item is required"),
-  productTotal: z.number().min(0, "Product total must be positive"),
-  deliveryFee: z.number().min(0, "Delivery fee must be positive"),
+  noOfItems: z.union([z.string().min(1, "Number of items is required"), z.number().min(1, "At least 1 item is required")]),
+  productTotal: z.union([z.string().min(1, "Product total is required"), z.number().min(0, "Product total must be positive")]),
+  deliveryFee: z.union([z.string().min(1, "Delivery fee is required"), z.number().min(0, "Delivery fee must be positive")]),
   deliveryDate: z.string().min(1, "Delivery date is required"),
   deliveryNotes: z.string().optional(),
   posOrderId: z.string().optional(),
 })
 
 export type CreateOrderFormData = z.infer<typeof createOrderSchema>
+
+export const updateOrderSchema = createOrderSchema.extend({
+  status: z.string().optional(),
+})
+
+export type UpdateOrderFormData = z.infer<typeof updateOrderSchema>
 
 export const getStatusBadgeVariant = (
   status: string
@@ -68,3 +74,35 @@ export const formatDateTime = (dateString: string): string => {
     minute: "2-digit",
   }).format(new Date(dateString))
 }
+
+type OrderStatus = "PENDING" | "ASSIGNED" | "IN_TRANSIT" | "DELIVERED" | "CANCELLED"
+
+export const getNextStatus = (currentStatus: string): OrderStatus | null => {
+  const status = currentStatus.toUpperCase()
+  switch (status) {
+    case "PENDING":
+      return "ASSIGNED"
+    case "ASSIGNED":
+      return "IN_TRANSIT"
+    case "IN_TRANSIT":
+      return "DELIVERED"
+    case "DELIVERED":
+    case "CANCELLED":
+      return null
+    default:
+      return "ASSIGNED"
+  }
+}
+
+export const getNextStatusLabel = (currentStatus: string): string | null => {
+  const nextStatus = getNextStatus(currentStatus)
+  return nextStatus ? formatStatus(nextStatus) : null
+}
+
+export const orderStatusOptions = [
+  { value: "PENDING", label: "Pending" },
+  { value: "ASSIGNED", label: "Assigned" },
+  { value: "IN_TRANSIT", label: "In Transit" },
+  { value: "DELIVERED", label: "Delivered" },
+  { value: "CANCELLED", label: "Cancelled" },
+]

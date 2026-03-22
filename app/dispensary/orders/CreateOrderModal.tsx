@@ -3,7 +3,11 @@
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useCreateOrderMutation } from "@/app/api/react-query/orders"
+import {
+  useCreateOrderMutation,
+  useUpdateOrderMutation,
+  Order,
+} from "@/app/api/react-query/orders"
 import {
   Dialog,
   DialogContent,
@@ -20,50 +24,114 @@ import {
   FormNumberField,
   FormTimeRangeField,
 } from "@/components/fields"
-import { createOrderSchema, CreateOrderFormData } from "./util"
+import {
+  updateOrderSchema,
+  UpdateOrderFormData,
+  orderStatusOptions,
+} from "./util"
 import { toast } from "react-toastify"
 import { useEffect } from "react"
+import { FormSelect } from "@/components/fields/FormSelect"
 
 interface CreateOrderModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  order?: Order | null
 }
 
 export const CreateOrderModal = ({
   open,
   onOpenChange,
+  order,
 }: CreateOrderModalProps) => {
   const createOrderMutation = useCreateOrderMutation()
+  const updateOrderMutation = useUpdateOrderMutation()
+  const isEditMode = !!order
 
-  const form = useForm<CreateOrderFormData>({
-    resolver: zodResolver(createOrderSchema),
+  const form = useForm<UpdateOrderFormData>({
+    resolver: zodResolver(updateOrderSchema),
     defaultValues: {
       customerName: "",
       customerPhone: "",
       deliveryAddress: "",
       primaryTimeSlot: "",
       secondaryTimeSlot: "",
-      noOfItems: 1,
-      productTotal: 0,
-      deliveryFee: 0,
+      noOfItems: "1",
+      productTotal: "0",
+      deliveryFee: "0",
       deliveryDate: "",
       deliveryNotes: "",
       posOrderId: "",
+      status: "PENDING",
     },
   })
 
   useEffect(() => {
-    form.reset()
-  }, [open]);
+    if (order && open) {
+      // Pre-populate form with order data for editing
+      form.reset({
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        deliveryAddress: order.deliveryAddress,
+        primaryTimeSlot: order.primaryTimeSlot,
+        secondaryTimeSlot: order.secondaryTimeSlot || "",
+        noOfItems: order.noOfItems as string | number, // Accept both string and number  
+        productTotal: order.productTotal as string | number, // Accept both string and number
+        deliveryFee: order.deliveryFee as string | number, // Accept both string and number
+        deliveryDate: order.deliveryDate.split("T")[0], // Format date for input
+        deliveryNotes: order.deliveryNotes || "",
+        posOrderId: order.posOrderId || "",
+        status: order.status,
+      })
+    } else if (!order && open) {
+      // Reset form for create mode
+      form.reset({
+        customerName: "",
+        customerPhone: "",
+        deliveryAddress: "",
+        primaryTimeSlot: "",
+        secondaryTimeSlot: "",
+        noOfItems: "1",
+        productTotal: "0",
+        deliveryFee: "0",
+        deliveryDate: "",
+        deliveryNotes: "",
+        posOrderId: "",
+        status: "PENDING",
+      })
+    }
+  }, [order, open])
 
-  const onSubmit = async (data: CreateOrderFormData) => {
+  const onSubmit = async (data: UpdateOrderFormData) => {
     try {
-      await createOrderMutation.mutateAsync(data)
-      toast.success("Order created successfully")
+      // Convert string values to numbers for API
+      const apiData = {
+        ...data,
+        noOfItems: Number(data.noOfItems),
+        productTotal: Number(data.productTotal),
+        deliveryFee: Number(data.deliveryFee),
+      }
+
+      if (isEditMode && order) {
+        // Update existing order
+        await updateOrderMutation.mutateAsync({
+          orderId: order.id,
+          data: apiData,
+        })
+        toast.success("Order updated successfully")
+      } else {
+        // Create new order (exclude status from payload)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { status, ...createData } = apiData
+        await createOrderMutation.mutateAsync(createData)
+        toast.success("Order created successfully")
+      }
       form.reset()
       onOpenChange(false)
     } catch (error) {
-      let message = "Failed to create order"
+      let message = isEditMode
+        ? "Failed to update order"
+        : "Failed to create order"
       if (error && typeof error === "object" && "response" in error) {
         const apiError = error as { response?: { data?: { message?: string } } }
         message = apiError.response?.data?.message || message
@@ -76,14 +144,29 @@ export const CreateOrderModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Order</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit Order" : "Create New Order"}
+          </DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new delivery order.
+            {isEditMode
+              ? "Update the order details below."
+              : "Fill in the details to create a new delivery order."}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {isEditMode && (
+              <FormSelect
+                control={form.control}
+                name="status"
+                label="Order Status"
+                options={orderStatusOptions}
+                required
+                disabled={!isEditMode}
+              />
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <FormInputField
                 name="customerName"
@@ -185,12 +268,25 @@ export const CreateOrderModal = ({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={createOrderMutation.isPending}
+                disabled={
+                  createOrderMutation.isPending || updateOrderMutation.isPending
+                }
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createOrderMutation.isPending}>
-                {createOrderMutation.isPending ? "Creating..." : "Create Order"}
+              <Button
+                type="submit"
+                disabled={
+                  createOrderMutation.isPending || updateOrderMutation.isPending
+                }
+              >
+                {isEditMode
+                  ? updateOrderMutation.isPending
+                    ? "Updating..."
+                    : "Update Order"
+                  : createOrderMutation.isPending
+                    ? "Creating..."
+                    : "Create Order"}
               </Button>
             </div>
           </form>

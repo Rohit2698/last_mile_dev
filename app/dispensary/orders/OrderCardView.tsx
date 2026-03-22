@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Order } from "@/app/api/react-query/orders"
 import {
   formatStatus,
@@ -8,12 +7,14 @@ import {
   formatDate,
   getStatusBadgeVariant,
 } from "./util"
+import { OrderActionsMenu } from "./OrderActionsMenu"
 
 interface OrderCardViewProps {
   orders: Order[]
+  onEditOrder?: (order: Order) => void
 }
 
-export const OrderCardView = ({ orders }: OrderCardViewProps) => {
+export const OrderCardView = ({ orders, onEditOrder }: OrderCardViewProps) => {
   if (orders.length === 0) {
     return (
       <Card className="p-12 text-center">
@@ -25,15 +26,18 @@ export const OrderCardView = ({ orders }: OrderCardViewProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {orders.map(order => (
-        <Card key={order.id} className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
+        <Card key={order.id} className="p-4 hover:shadow-lg transition-shadow">
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-2">
               <h3 className="text-sm font-semibold truncate">
                 #{order.posOrderId || order.id.slice(0, 8)}
               </h3>
-              <Badge variant={getStatusBadgeVariant(order.status)} className="text-xs">
-                {formatStatus(order.status)}
-              </Badge>
+              <div className="flex items-center gap-1">
+                <Badge variant={getStatusBadgeVariant(order.status)} className="text-xs">
+                  {formatStatus(order.status)}
+                </Badge>
+                <OrderActionsMenu order={order} onEditDetails={onEditOrder} />
+              </div>
             </div>
 
             <div className="space-y-2 text-sm">
@@ -50,14 +54,10 @@ export const OrderCardView = ({ orders }: OrderCardViewProps) => {
               <div className="flex items-center justify-between pt-2 border-t">
                 <span className="text-xs text-muted-foreground">Total</span>
                 <span className="font-semibold">
-                  {formatCurrency(order.productTotal + order.deliveryFee)}
+                  {formatCurrency(Number(order.productTotal) + Number(order.deliveryFee))}
                 </span>
               </div>
             </div>
-
-            <Button variant="outline" size="sm" className="w-full">
-              View Details
-            </Button>
           </div>
         </Card>
       ))}

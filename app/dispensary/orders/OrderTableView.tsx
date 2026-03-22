@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -15,12 +14,14 @@ import {
   formatDate,
   getStatusBadgeVariant,
 } from "./util"
+import { OrderActionsMenu } from "./OrderActionsMenu"
 
 interface OrderTableViewProps {
   orders: Order[]
+  onEditOrder?: (order: Order) => void
 }
 
-export const OrderTableView = ({ orders }: OrderTableViewProps) => {
+export const OrderTableView = ({ orders, onEditOrder }: OrderTableViewProps) => {
   if (orders.length === 0) {
     return (
       <div className="border rounded-lg p-12 text-center">
@@ -65,9 +66,7 @@ export const OrderTableView = ({ orders }: OrderTableViewProps) => {
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <Button variant="outline" size="sm">
-                  View
-                </Button>
+                <OrderActionsMenu order={order} onEditDetails={onEditOrder} />
               </TableCell>
             </TableRow>
           ))}

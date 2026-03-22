@@ -89,3 +89,53 @@ export const useCreateOrderMutation = () => {
     },
   })
 }
+
+interface UpdateOrderStatusData {
+  orderId: string
+  status: string
+}
+
+export const useUpdateOrderStatusMutation = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async ({ orderId, status }: UpdateOrderStatusData) => {
+      const response = await apiClient.patch<CreateOrderResponse>(
+        `/dispensary/orders/${orderId}`,
+        { status }
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      // Invalidate orders query to refetch the list
+      queryClient.invalidateQueries({ queryKey: ["orders"] })
+    },
+  })
+}
+
+export interface UpdateOrderData extends CreateOrderData {
+  status?: string
+}
+
+interface UpdateOrderParams {
+  orderId: string
+  data: UpdateOrderData
+}
+
+export const useUpdateOrderMutation = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async ({ orderId, data }: UpdateOrderParams) => {
+      const response = await apiClient.put<CreateOrderResponse>(
+        `/dispensary/orders/${orderId}`,
+        data
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      // Invalidate orders query to refetch the list
+      queryClient.invalidateQueries({ queryKey: ["orders"] })
+    },
+  })
+}

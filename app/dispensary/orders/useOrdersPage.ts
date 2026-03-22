@@ -1,11 +1,12 @@
 import { useState } from "react"
-import { useOrdersQuery } from "@/app/api/react-query/orders"
+import { useOrdersQuery, Order } from "@/app/api/react-query/orders"
 import { ViewMode } from "./util"
 
 export const useOrdersPage = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("card")
   const [currentPage, setCurrentPage] = useState(1)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null)
   const pageSize = 20
 
   const { data, isLoading, isError, error } = useOrdersQuery({
@@ -22,11 +23,18 @@ export const useOrdersPage = () => {
   }
 
   const openCreateModal = () => {
+    setEditingOrder(null)
     setIsCreateModalOpen(true)
   }
 
-  const closeCreateModal = () => {
+  const openEditModal = (order: Order) => {
+    setEditingOrder(order)
+    setIsCreateModalOpen(true)
+  }
+
+  const closeModal = () => {
     setIsCreateModalOpen(false)
+    setEditingOrder(null)
   }
 
   return {
@@ -41,6 +49,8 @@ export const useOrdersPage = () => {
     handlePageChange,
     isCreateModalOpen,
     openCreateModal,
-    closeCreateModal,
+    openEditModal,
+    closeModal,
+    editingOrder,
   }
 }

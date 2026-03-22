@@ -20,7 +20,9 @@ export default function OrdersPage() {
     handlePageChange,
     isCreateModalOpen,
     openCreateModal,
-    closeCreateModal,
+    openEditModal,
+    closeModal,
+    editingOrder,
   } = useOrdersPage()
 
   return (
@@ -63,9 +65,9 @@ export default function OrdersPage() {
         {!isLoading && !isError && (
           <>
             {viewMode === "card" ? (
-              <OrderCardView orders={orders} />
+              <OrderCardView orders={orders} onEditOrder={openEditModal} />
             ) : (
-              <OrderTableView orders={orders} />
+              <OrderTableView orders={orders} onEditOrder={openEditModal} />
             )}
 
             {meta && meta.totalPages > 1 && (
@@ -102,7 +104,8 @@ export default function OrdersPage() {
 
       <CreateOrderModal
         open={isCreateModalOpen}
-        onOpenChange={closeCreateModal}
+        onOpenChange={closeModal}
+        order={editingOrder}
       />
     </DashboardLayout>
   )

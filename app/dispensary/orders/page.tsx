@@ -7,6 +7,7 @@ import { useOrdersPage } from "./useOrdersPage"
 import { OrderCardView } from "./OrderCardView"
 import { OrderTableView } from "./OrderTableView"
 import { CreateOrderModal } from "./CreateOrderModal"
+import { ViewOrderDetailsModal } from "./ViewOrderDetailsModal"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
 import { useDeleteOrderMutation } from "@/app/api/react-query/orders"
 import { toast } from "react-toastify"
@@ -29,6 +30,9 @@ export default function OrdersPage() {
     deletingOrder,
     openDeleteModal,
     closeDeleteModal,
+    viewingOrder,
+    openViewModal,
+    closeViewModal,
   } = useOrdersPage()
 
   const deleteOrderMutation = useDeleteOrderMutation()
@@ -89,12 +93,14 @@ export default function OrdersPage() {
             {viewMode === "card" ? (
               <OrderCardView
                 orders={orders}
+                onViewOrder={openViewModal}
                 onEditOrder={openEditModal}
                 onDeleteOrder={openDeleteModal}
               />
             ) : (
               <OrderTableView
                 orders={orders}
+                onViewOrder={openViewModal}
                 onEditOrder={openEditModal}
                 onDeleteOrder={openDeleteModal}
               />
@@ -136,6 +142,12 @@ export default function OrdersPage() {
         open={isCreateModalOpen}
         onOpenChange={closeModal}
         order={editingOrder}
+      />
+
+      <ViewOrderDetailsModal
+        open={!!viewingOrder}
+        onOpenChange={(open) => !open && closeViewModal()}
+        order={viewingOrder}
       />
 
       <ConfirmationModal

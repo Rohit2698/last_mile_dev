@@ -21,9 +21,10 @@ interface OrderTableViewProps {
   orders: Order[]
   onEditOrder?: (order: Order) => void
   onDeleteOrder?: (order: Order) => void
+  onViewOrder?: (order: Order) => void
 }
 
-export const OrderTableView = ({ orders, onEditOrder, onDeleteOrder }: OrderTableViewProps) => {
+export const OrderTableView = ({ orders, onEditOrder, onDeleteOrder, onViewOrder }: OrderTableViewProps) => {
   if (orders.length === 0) {
     return (
       <div className="border rounded-lg p-12 text-center">
@@ -70,6 +71,7 @@ export const OrderTableView = ({ orders, onEditOrder, onDeleteOrder }: OrderTabl
               <TableCell className="text-right">
                 <OrderActionsMenu
                   order={order}
+                  onViewDetails={onViewOrder}
                   onEditDetails={onEditOrder}
                   onDeleteOrder={onDeleteOrder}
                 />

@@ -8,6 +8,7 @@ export const useOrdersPage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingOrder, setEditingOrder] = useState<Order | null>(null)
   const [deletingOrder, setDeletingOrder] = useState<Order | null>(null)
+  const [viewingOrder, setViewingOrder] = useState<Order | null>(null)
   const pageSize = 20
 
   const { data, isLoading, isError, error } = useOrdersQuery({
@@ -46,6 +47,14 @@ export const useOrdersPage = () => {
     setDeletingOrder(null)
   }
 
+  const openViewModal = (order: Order) => {
+    setViewingOrder(order)
+  }
+
+  const closeViewModal = () => {
+    setViewingOrder(null)
+  }
+
   return {
     viewMode,
     toggleViewMode,
@@ -64,5 +73,8 @@ export const useOrdersPage = () => {
     deletingOrder,
     openDeleteModal,
     closeDeleteModal,
+    viewingOrder,
+    openViewModal,
+    closeViewModal,
   }
 }

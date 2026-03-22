@@ -14,9 +14,10 @@ interface OrderCardViewProps {
   orders: Order[]
   onEditOrder?: (order: Order) => void
   onDeleteOrder?: (order: Order) => void
+  onViewOrder?: (order: Order) => void
 }
 
-export const OrderCardView = ({ orders, onEditOrder, onDeleteOrder }: OrderCardViewProps) => {
+export const OrderCardView = ({ orders, onEditOrder, onDeleteOrder, onViewOrder }: OrderCardViewProps) => {
   if (orders.length === 0) {
     return (
       <Card className="p-12 text-center">
@@ -40,6 +41,7 @@ export const OrderCardView = ({ orders, onEditOrder, onDeleteOrder }: OrderCardV
                 </Badge>
                 <OrderActionsMenu
                   order={order}
+                  onViewDetails={onViewOrder}
                   onEditDetails={onEditOrder}
                   onDeleteOrder={onDeleteOrder}
                 />

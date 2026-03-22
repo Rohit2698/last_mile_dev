@@ -14,15 +14,17 @@ interface UploadDocumentData {
   file: File
 }
 
-export const useBasicInfo = () => {
+export const useBasicInfo = (enabled = true) => {
   return useQuery({
     queryKey: ["dispensary", "basic-info"],
     queryFn: async () => {
-      const response = await apiClient.get<{ success: boolean; data: BasicInfo }>(
-        "/dispensary/basic-info"
-      )
+      const response = await apiClient.get<{
+        success: boolean
+        data: BasicInfo
+      }>("/dispensary/basic-info")
       return response.data.data
     },
+    enabled,
   })
 }
 
@@ -43,9 +45,10 @@ export const useVerificationDocuments = () => {
   return useQuery({
     queryKey: ["dispensary", "verification-documents"],
     queryFn: async () => {
-      const response = await apiClient.get<{ success: boolean; data: VerificationDocument[] }>(
-        "/dispensary/verification-documents"
-      )
+      const response = await apiClient.get<{
+        success: boolean
+        data: VerificationDocument[]
+      }>("/dispensary/verification-documents")
       return response.data.data
     },
   })
@@ -58,13 +61,20 @@ export const useUploadVerificationDocument = () => {
       const formData = new FormData()
       formData.append("documentType", data.documentType)
       formData.append("file", data.file)
-      const response = await apiClient.post("/dispensary/verification-documents", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+      const response = await apiClient.post(
+        "/dispensary/verification-documents",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      )
       return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["dispensary", "verification-documents"] })
+      queryClient.invalidateQueries({
+        queryKey: ["dispensary", "verification-documents"],
+      })
+      queryClient.invalidateQueries({ queryKey: ["dispensary", "basic-info"] }) // To refresh verification status if needed
     },
   })
 }
@@ -73,11 +83,16 @@ export const useDeleteVerificationDocument = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiClient.delete(`/dispensary/verification-documents/${id}`)
+      const response = await apiClient.delete(
+        `/dispensary/verification-documents/${id}`,
+      )
       return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["dispensary", "verification-documents"] })
+      queryClient.invalidateQueries({
+        queryKey: ["dispensary", "verification-documents"],
+      })
+      queryClient.invalidateQueries({ queryKey: ["dispensary", "basic-info"] }) // To refresh verification status if needed
     },
   })
 }

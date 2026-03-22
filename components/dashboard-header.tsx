@@ -20,8 +20,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 type DashboardHeaderProps = {
   user: UserType | AdminUser | null
   logout: () => void
+  verificationStatus?: string | null
 }
-export function DashboardHeader({ user, logout }: DashboardHeaderProps) {
+export function DashboardHeader({ user, logout, verificationStatus }: DashboardHeaderProps) {
   const router = useRouter()
 
   const handleLogout = () => {
@@ -42,20 +43,20 @@ export function DashboardHeader({ user, logout }: DashboardHeaderProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          {(user as UserType)?.verificationStatus && (
+          {verificationStatus && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge
                   className={`text-sm font-medium capitalize cursor-pointer`}
                   onClick={() => router.push("/dispensary/profile")}
                 >
-                  {(user as UserType)?.verificationStatus.replace(/_/g, " ")}
+                  {verificationStatus.replace(/_/g, " ")}
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                {(user as UserType)?.verificationStatus === "WAITING_FOR_DOCUMENT"
+                {verificationStatus === "WAITING_FOR_DOCUMENT"
                   ? "Click to upload your verification documents"
-                  : `Verification status: ${(user as UserType)?.verificationStatus.replace(/_/g, " ")}`}
+                  : `Verification status: ${verificationStatus.replace(/_/g, " ")}`}
               </TooltipContent>
             </Tooltip>
           )}

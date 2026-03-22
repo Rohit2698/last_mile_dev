@@ -14,13 +14,15 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, role }: DashboardLayoutProps) {
   const router = useRouter()
-  
+
   // Always call both hooks to avoid conditional hook calls
   const regularAuth = useAuth()
   const adminAuth = useAdminAuth()
-  
+
   // Use appropriate auth context based on role
-  const { isAuthenticated, logout, user } = role === "admin" ? adminAuth : regularAuth
+  const { isAuthenticated, logout, user } =
+    role === "admin" ? adminAuth : regularAuth
+  const { verificationStatus } = regularAuth
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -41,12 +43,15 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <DashboardHeader user={user} logout={logout} />
+        <DashboardHeader
+          verificationStatus={verificationStatus}
+          user={user}
+          key={verificationStatus}
+          logout={logout}
+        />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto bg-background">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto bg-background">{children}</main>
       </div>
     </div>
   )

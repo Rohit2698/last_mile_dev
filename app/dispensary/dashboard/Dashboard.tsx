@@ -9,7 +9,7 @@ export function Dashboard() {
 
   return (
     <DashboardLayout role="dispensary">
-      <div className="space-y-6">
+      <div className="space-y-6 p-4">
         {/* Welcome Card */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Welcome, {user?.name}!</h2>

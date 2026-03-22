@@ -8,6 +8,7 @@ import {
   getStatusBadgeVariant,
 } from "./util"
 import { OrderActionsMenu } from "./OrderActionsMenu"
+import { formatPhone } from "@/lib/utils"
 
 interface OrderCardViewProps {
   orders: Order[]
@@ -43,7 +44,7 @@ export const OrderCardView = ({ orders, onEditOrder }: OrderCardViewProps) => {
             <div className="space-y-2 text-sm">
               <div>
                 <p className="font-medium truncate">{order.customerName}</p>
-                <p className="text-xs text-muted-foreground truncate">{order.customerPhone}</p>
+                <p className="text-xs text-muted-foreground truncate">{formatPhone(order.customerPhone)}</p>
               </div>
 
               <div className="pt-2 border-t">

@@ -15,6 +15,7 @@ import {
   getStatusBadgeVariant,
 } from "./util"
 import { OrderActionsMenu } from "./OrderActionsMenu"
+import { formatPhone } from "@/lib/utils"
 
 interface OrderTableViewProps {
   orders: Order[]
@@ -53,12 +54,12 @@ export const OrderTableView = ({ orders, onEditOrder }: OrderTableViewProps) => 
                 #{order.posOrderId || order.id.slice(0, 8)}
               </TableCell>
               <TableCell>{order.customerName}</TableCell>
-              <TableCell>{order.customerPhone}</TableCell>
+              <TableCell>{formatPhone(order.customerPhone)}</TableCell>
               <TableCell>{formatDate(order.deliveryDate)}</TableCell>
               <TableCell>{order.primaryTimeSlot}</TableCell>
               <TableCell className="text-right">{order.noOfItems}</TableCell>
               <TableCell className="text-right">
-                {formatCurrency(order.productTotal + order.deliveryFee)}
+                {formatCurrency(Number(order.productTotal) + Number(order.deliveryFee))}
               </TableCell>
               <TableCell>
                 <Badge variant={getStatusBadgeVariant(order.status)}>

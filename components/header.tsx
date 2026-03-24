@@ -16,7 +16,7 @@ export function Header() {
           <a href="/dispensary/login" className="text-sm font-medium transition-colors hover:text-primary">
             Dispensary
           </a>
-          <a href="/dispensary/login" className="text-sm font-medium transition-colors hover:text-primary">
+          <a href="/delivery/login" className="text-sm font-medium transition-colors hover:text-primary">
             Delivery Partner
           </a>
           <a href="#driver" className="text-sm font-medium transition-colors hover:text-primary">

@@ -2,32 +2,31 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
-import { useDispensaryAuth } from "@/context/DispensaryAuthContext"
-import { useRegisterMutation } from "@/app/api/react-query/auth"
+import { useDeliveryAuth } from "@/context/DeliveryAuthContext"
+import { useDeliveryRegisterMutation } from "@/app/api/react-query/deliveryAuth"
 import { registerSchema, RegisterFormData } from "./util"
 import { useEffect } from "react"
 import axios from "axios"
 
 export function useRegisterWizard() {
   const router = useRouter()
-  const { setUser, isAuthenticated } = useDispensaryAuth()
-  const registerMutation = useRegisterMutation()
+  const { setDeliveryUser, isAuthenticated: isDeliveryAuthenticated } = useDeliveryAuth()
+  const registerMutation = useDeliveryRegisterMutation()
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dispensary/dashboard")
+    if (isDeliveryAuthenticated) {
+      router.push("/delivery/dashboard")
     }
-  }, [isAuthenticated, router])
+  }, [isDeliveryAuthenticated, router])
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: "",
+      companyName: "",
       email: "",
       password: "",
       phone: "",
       address: "",
-      licenseNumber: "",
     },
   })
 
@@ -37,8 +36,8 @@ export function useRegisterWizard() {
 
       if (response.success) {
         toast.success(response.message || "Registration successful!")
-        setUser(response.data)
-        router.push("/dispensary/dashboard")
+        setDeliveryUser(response.data)
+        router.push("/delivery/dashboard")
       }
     } catch (error: unknown) {
       let errorMessage = "Registration failed. Please try again."

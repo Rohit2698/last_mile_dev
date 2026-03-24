@@ -2,10 +2,11 @@
 
 import { Sidebar } from "@/components/sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { useAuth } from "@/context/AuthContext"
-import { useAdminAuth } from "@/context/AdminAuthContext"
+import { useDispensaryAuth } from "@/context/DispensaryAuthContext"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { useAdminAuth } from "@/context/AdminAuthContext"
+import { useDeliveryAuth } from "@/context/DeliveryAuthContext"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -15,15 +16,22 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, role }: DashboardLayoutProps) {
   const router = useRouter()
 
-  // Always call both hooks to avoid conditional hook calls
-  const regularAuth = useAuth()
+  const dispensaryAuth = useDispensaryAuth()
   const adminAuth = useAdminAuth()
+  const deliveryAuth = useDeliveryAuth()
 
-  // Use appropriate auth context based on role
   const { isAuthenticated, logout, user } =
-    role === "admin" ? adminAuth : regularAuth
-  const { verificationStatus } = regularAuth
+    role === "admin" ? adminAuth :
+    role === "delivery" ? deliveryAuth :
+    dispensaryAuth
 
+  const verificationStatus =
+    role === "dispensary"
+      ? dispensaryAuth.verificationStatus
+      : role === "delivery"
+        ? deliveryAuth.verificationStatus
+        : null
+  
   useEffect(() => {
     if (!isAuthenticated) {
       const loginPath = role === "admin" ? "/admin/login" : `/${role}/login`
@@ -48,6 +56,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           user={user}
           key={verificationStatus}
           logout={logout}
+          type={role}
         />
 
         {/* Main Content */}

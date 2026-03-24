@@ -12,7 +12,7 @@ export type User = {
   isVerified: boolean
 }
 
-interface AuthContextType {
+interface DispensaryContextType {
   user: User | null
   setUser: (user: User | null) => void
   logout: () => void
@@ -20,9 +20,9 @@ interface AuthContextType {
   verificationStatus: VerificationStatusType | null
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const DispensaryContext = createContext<DispensaryContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function DispensaryProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { data } = useBasicInfo(!!user)
@@ -70,13 +70,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <DispensaryContext.Provider value={value}>{children}</DispensaryContext.Provider>
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext)
+export function useDispensaryAuth() {
+  const context = useContext(DispensaryContext)
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useDispensaryAuth must be used within a DispensaryProvider")
   }
   return context
 }

@@ -11,18 +11,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { User as UserType } from "@/context/AuthContext"
+import { User as UserType } from "@/context/DispensaryAuthContext"
 import { AdminUser } from "@/context/AdminAuthContext"
+import { DeliveryUser } from "@/context/DeliveryAuthContext"
 import { useRouter } from "next/navigation"
 import { Badge } from "./ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 
 type DashboardHeaderProps = {
-  user: UserType | AdminUser | null
+  user: UserType | AdminUser | DeliveryUser | null
   logout: () => void
   verificationStatus?: string | null
+  type: "dispensary" | "delivery" | "admin"
 }
-export function DashboardHeader({ user, logout, verificationStatus }: DashboardHeaderProps) {
+export function DashboardHeader({ user, logout, verificationStatus, type }: DashboardHeaderProps) {
   const router = useRouter()
 
   const handleLogout = () => {
@@ -31,7 +33,13 @@ export function DashboardHeader({ user, logout, verificationStatus }: DashboardH
   }
 
   const handleProfile = () => {
-    router.push("/dispensary/profile")
+    if (type === "dispensary") {
+      router.push("/dispensary/profile")
+    } else if (type === "delivery") {
+      router.push("/delivery/profile")
+    } else if (type === "admin") {
+      router.push("/admin/profile")
+    }
   }
 
   return (
@@ -48,7 +56,7 @@ export function DashboardHeader({ user, logout, verificationStatus }: DashboardH
               <TooltipTrigger asChild>
                 <Badge
                   className={`text-sm font-medium capitalize cursor-pointer`}
-                  onClick={() => router.push("/dispensary/profile")}
+                  onClick={handleProfile}
                 >
                   {verificationStatus.replace(/_/g, " ")}
                 </Badge>

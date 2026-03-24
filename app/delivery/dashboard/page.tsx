@@ -2,20 +2,20 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card } from "@/components/ui/card"
-import { useAuth } from "@/context/AuthContext"
+import { useDeliveryAuth } from "@/context/DeliveryAuthContext"
 
 export default function DeliveryDashboardPage() {
-  const { user } = useAuth()
+  const { deliveryUser } = useDeliveryAuth()
 
   return (
     <DashboardLayout role="delivery">
       <div className="space-y-6">
         {/* Welcome Card */}
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Welcome, {user?.name}!</h2>
+          <h2 className="text-xl font-semibold mb-4">Welcome, {deliveryUser?.companyName}!</h2>
           <div className="space-y-2 text-muted-foreground">
             <p>
-              <span className="font-medium">Email:</span> {user?.email}
+              <span className="font-medium">Email:</span> {deliveryUser?.email}
             </p>
             <p>
               <span className="font-medium">Role:</span> Delivery Partner

@@ -2,22 +2,22 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
-import { useDispensaryAuth } from "@/context/DispensaryAuthContext"
-import { useLoginMutation } from "@/app/api/react-query/auth"
+import { useDeliveryAuth } from "@/context/DeliveryAuthContext"
+import { useDeliveryLoginMutation } from "@/app/api/react-query/deliveryAuth"
 import { loginSchema, LoginFormData } from "./util"
 import { useEffect } from "react"
 import axios from "axios"
 
 export function useLoginWizard() {
   const router = useRouter()
-  const { setUser, isAuthenticated } = useDispensaryAuth()
-  const loginMutation = useLoginMutation()
+  const { setDeliveryUser, isAuthenticated: isDeliveryAuthenticated } = useDeliveryAuth()
+  const loginMutation = useDeliveryLoginMutation()
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dispensary/dashboard")
+    if (isDeliveryAuthenticated) {
+      router.push("/delivery/dashboard")
     }
-  }, [isAuthenticated, router])
+  }, [isDeliveryAuthenticated, router])
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -33,8 +33,8 @@ export function useLoginWizard() {
 
       if (response.success) {
         toast.success(response.message || "Login successful!")
-        setUser(response.data)
-        router.push("/dispensary/dashboard")
+        setDeliveryUser(response.data)
+        router.push("/delivery/dashboard")
       }
     } catch (error: unknown) {
       let errorMessage = "Login failed. Please try again."

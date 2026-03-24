@@ -2,11 +2,11 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/context/AuthContext"
+import { useDispensaryAuth } from "@/context/DispensaryAuthContext"
 
 export function useDashboardWizard() {
   const router = useRouter()
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, logout } = useDispensaryAuth()
 
   useEffect(() => {
     if (!isAuthenticated) {

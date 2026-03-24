@@ -14,6 +14,7 @@ import {
   Store,
   Users,
   Truck,
+  User,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -38,6 +39,7 @@ const navigationItems: Record<"dispensary" | "delivery" | "admin", NavItem[]> = 
     { label: "Dashboard", href: "/delivery/dashboard", icon: LayoutDashboard },
     { label: "Map", href: "/delivery/map", icon: Map },
     { label: "Orders", href: "/delivery/orders", icon: ShoppingCart },
+    { label: "Profile", href: "/delivery/profile", icon: User },
     { label: "Settings", href: "/delivery/settings", icon: Settings },
   ],
   admin: [

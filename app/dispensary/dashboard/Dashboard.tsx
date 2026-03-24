@@ -1,11 +1,11 @@
 "use client"
 
-import { useAuth } from "@/context/AuthContext"
+import { useDispensaryAuth } from "@/context/DispensaryAuthContext"
 import { Card } from "@/components/ui/card"
 import { DashboardLayout } from "@/components/dashboard-layout"
 
 export function Dashboard() {
-  const { user } = useAuth()
+  const { user } = useDispensaryAuth()
 
   return (
     <DashboardLayout role="dispensary">

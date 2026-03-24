@@ -1,12 +1,15 @@
 "use client"
 
+import { VerificationStatusType } from "@/app/api/react-query/auth"
+import { useBasicInfo } from "@/app/api/react-query/profile"
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
-interface User {
+export type User = {
   id: string
   email: string
   name: string
   token: string
+  isVerified: boolean
 }
 
 interface AuthContextType {
@@ -14,6 +17,7 @@ interface AuthContextType {
   setUser: (user: User | null) => void
   logout: () => void
   isAuthenticated: boolean
+  verificationStatus: VerificationStatusType | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -21,7 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-
+  const { data } = useBasicInfo(!!user)
   useEffect(() => {
     // Load user from localStorage on mount
     try {
@@ -59,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser,
     logout,
     isAuthenticated: !!user,
+    verificationStatus: data?.verificationStatus as VerificationStatusType || null,
   }
 
   if (isLoading) {

@@ -15,6 +15,7 @@ interface LoginData {
   password: string
 }
 
+export type VerificationStatusType = "WAITING_FOR_DOCUMENT" | "SENT_FOR_APPROVAL" | "REJECTED" | "APPROVED" | "APPROVED_WITH_SOME_CHANGES"
 interface AuthResponse {
   success: boolean
   message: string
@@ -23,6 +24,8 @@ interface AuthResponse {
     email: string
     name: string
     token: string
+    isVerified: boolean
+    verificationStatus: VerificationStatusType
   }
 }
 

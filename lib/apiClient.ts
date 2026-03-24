@@ -15,7 +15,8 @@ let isAuthErrorHandled = false
 // Only add interceptors in browser environment
 if (typeof window !== "undefined") {
   apiClient.interceptors.request.use(config => {
-    const token = localStorage.getItem("authToken")
+    // Check for both authToken (dispensary/regular users) and adminToken
+    const token = localStorage.getItem("authToken") || localStorage.getItem("adminToken")
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -32,10 +33,15 @@ if (typeof window !== "undefined") {
         isAuthErrorHandled = true
         toast.error("Session expired. Please log in again.")
         try {
+          const isAdmin = localStorage.getItem("adminToken")
           localStorage.removeItem("authToken")
           localStorage.removeItem("authUser")
+          localStorage.removeItem("adminToken")
+          localStorage.removeItem("adminUser")
+          
+          // Redirect to appropriate login page
+          window.location.href = isAdmin ? "/admin/login" : "/"
         } catch {}
-        window.location.href = "/login"
       }
       return Promise.reject(error)
     },

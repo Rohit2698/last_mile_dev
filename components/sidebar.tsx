@@ -11,11 +11,14 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  Store,
+  Users,
+  Truck,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface SidebarProps {
-  role: "dispensary" | "delivery"
+  role: "dispensary" | "delivery" | "admin"
 }
 
 interface NavItem {
@@ -24,7 +27,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>
 }
 
-const navigationItems: Record<"dispensary" | "delivery", NavItem[]> = {
+const navigationItems: Record<"dispensary" | "delivery" | "admin", NavItem[]> = {
   dispensary: [
     { label: "Dashboard", href: "/dispensary/dashboard", icon: LayoutDashboard },
     { label: "Map", href: "/dispensary/map", icon: Map },
@@ -36,6 +39,12 @@ const navigationItems: Record<"dispensary" | "delivery", NavItem[]> = {
     { label: "Map", href: "/delivery/map", icon: Map },
     { label: "Orders", href: "/delivery/orders", icon: ShoppingCart },
     { label: "Settings", href: "/delivery/settings", icon: Settings },
+  ],
+  admin: [
+    { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { label: "Dispensary Approval", href: "/admin/dashboard/dispensary-approval", icon: Store },
+    { label: "Driver Approval", href: "/admin/dashboard/driver-approval", icon: Users },
+    { label: "Partner Approval", href: "/admin/dashboard/partner-approval", icon: Truck },
   ],
 }
 
@@ -55,7 +64,7 @@ export function Sidebar({ role }: SidebarProps) {
       <div className="flex h-16 items-center justify-between border-b px-4">
         {!isCollapsed && (
           <span className="text-lg font-semibold">
-            {role === "dispensary" ? "Dispensary" : "Delivery"}
+            {role === "dispensary" ? "Dispensary" : role === "delivery" ? "Delivery" : "Admin"}
           </span>
         )}
         <Button

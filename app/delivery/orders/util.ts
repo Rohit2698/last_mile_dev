@@ -1,34 +1,7 @@
-import { z } from "zod"
-
-export type ViewMode = "table" | "card"
-
-export const createOrderSchema = z.object({
-  customerName: z.string().min(1, "Customer name is required"),
-  customerEmail: z.string().email("Valid email is required").min(1, "Customer email is required").optional(),
-  customerPhone: z.string().min(10, "Valid phone number is required"),
-  customerType: z.enum(["MED", "REC"]),
-  deliveryAddress: z.string().min(5, "Delivery address is required"),
-  primaryTimeSlot: z.string().min(1, "Primary time slot is required"),
-  noOfItems: z.union([z.string().min(1, "Number of items is required"), z.number().min(1, "At least 1 item is required")]),
-  productTotal: z.union([z.string().min(1, "Product total is required"), z.number().min(0, "Product total must be positive")]),
-  deliveryFee: z.union([z.string().min(1, "Delivery fee is required"), z.number().min(0, "Delivery fee must be positive")]),
-  deliveryDate: z.string().min(1, "Delivery date is required"),
-  deliveryNotes: z.string().optional(),
-  posOrderId: z.string().optional(),
-  assignedDeliveryPartnerId: z.string().optional(),
-  status: z.string().optional(),
-})
-
-export type CreateOrderFormData = z.infer<typeof createOrderSchema>
-
-export const updateOrderSchema = createOrderSchema.extend({
-  status: z.string().optional(),
-})
-
-export type UpdateOrderFormData = z.infer<typeof updateOrderSchema>
+export type ViewMode = "table" | "card" | "dispensary"
 
 export const getStatusBadgeVariant = (
-  status: string
+  status: string,
 ): "default" | "secondary" | "destructive" | "outline" => {
   switch (status.toLowerCase()) {
     case "pending":
@@ -68,16 +41,6 @@ export const formatDate = (dateString: string): string => {
   }).format(new Date(dateString))
 }
 
-export const formatDateTime = (dateString: string): string => {
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateString))
-}
-
 type OrderStatus = "PENDING" | "ASSIGNED" | "IN_TRANSIT" | "DELIVERED" | "CANCELLED"
 
 export const getNextStatus = (currentStatus: string): OrderStatus | null => {
@@ -109,3 +72,56 @@ export const orderStatusOptions = [
   { value: "DELIVERED", label: "Delivered" },
   { value: "CANCELLED", label: "Cancelled" },
 ]
+
+
+export const COLUMN_COLORS = [
+  {
+    border: "border-l-blue-500",
+    header: "bg-blue-50 dark:bg-blue-950/30",
+    badge: "bg-blue-500",
+  },
+  {
+    border: "border-l-green-500",
+    header: "bg-green-50 dark:bg-green-950/30",
+    badge: "bg-green-500",
+  },
+  {
+    border: "border-l-purple-500",
+    header: "bg-purple-50 dark:bg-purple-950/30",
+    badge: "bg-purple-500",
+  },
+  {
+    border: "border-l-orange-500",
+    header: "bg-orange-50 dark:bg-orange-950/30",
+    badge: "bg-orange-500",
+  },
+  {
+    border: "border-l-teal-500",
+    header: "bg-teal-50 dark:bg-teal-950/30",
+    badge: "bg-teal-500",
+  },
+  {
+    border: "border-l-red-500",
+    header: "bg-red-50 dark:bg-red-950/30",
+    badge: "bg-red-500",
+  },
+]
+
+export const STATUS_STYLES: Record<string, string> = {
+  confirmed:
+    "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
+  pending:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
+  cancelled: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+  delivered: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
+  processing:
+    "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300",
+}
+
+
+export const getStatusStyle = (status: string) => {
+  return (
+    STATUS_STYLES[status.toLowerCase()] ??
+    "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+  )
+}

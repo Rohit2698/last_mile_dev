@@ -10,117 +10,100 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { LayoutGrid, Table, Search, X } from "lucide-react"
-import { useOrdersPage } from "./useOrdersPage"
+import { LayoutGrid, Table, Columns2, Search, X } from "lucide-react"
+import { useDeliveryOrdersPage } from "./useDeliveryOrdersPage"
 import { OrderCardView } from "./OrderCardView"
 import { OrderTableView } from "./OrderTableView"
-import { CreateOrderModal } from "./CreateOrderModal"
+import { OrderDispensaryView } from "./OrderDispensaryView"
 import { ViewOrderDetailsModal } from "./ViewOrderDetailsModal"
+import { CreateOrderModal } from "./CreateOrderModal"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
 import { Pagination } from "@/components/Pagination"
 import { FormDateRangePicker } from "@/components/fields/FormDateRangePicker"
-import { useDeleteOrderMutation } from "@/app/api/react-query/orders"
-import { orderStatusOptions } from "./util"
+import { useDeleteDeliveryOrderMutation } from "@/app/api/react-query/deliveryOrders"
+import { useDeliveryConnections } from "@/app/api/react-query/connections"
 import { toast } from "react-toastify"
 
-export default function OrdersPage() {
+export default function DeliveryOrdersPage() {
   const {
     viewMode,
-    toggleViewMode,
+    setViewMode,
     orders,
     meta,
     isLoading,
     isError,
     currentPage,
     handlePageChange,
-    isCreateModalOpen,
-    openCreateModal,
-    openEditModal,
-    closeModal,
-    editingOrder,
-    deletingOrder,
-    openDeleteModal,
-    closeDeleteModal,
     viewingOrder,
     openViewModal,
     closeViewModal,
+    isCreateModalOpen,
+    openCreateModal,
+    closeCreateModal,
+    editingOrder,
+    openEditModal,
+    deletingOrder,
+    openDeleteModal,
+    closeDeleteModal,
     searchInput,
     setSearchInput,
-    filterStatus,
-    setFilterStatus,
+    filterDispensaryId,
+    setFilterDispensaryId,
     filterDateRange,
     setFilterDateRange,
-  } = useOrdersPage()
+  } = useDeliveryOrdersPage()
 
-  const deleteOrderMutation = useDeleteOrderMutation()
+  const deleteOrderMutation = useDeleteDeliveryOrderMutation()
+  const { data: connections } = useDeliveryConnections()
 
-  const hasActiveFilters = !!searchInput || !!filterStatus || !!filterDateRange?.from
+  const dispensaryOptions = (connections ?? [])
+    .filter(c => c.status === "ACTIVE")
+    .map(c => ({ value: c.dispensary!.id, label: c.dispensary!.name }))
+
+  const hasActiveFilters = !!searchInput || !!filterDispensaryId || !!filterDateRange?.from
 
   const clearFilters = () => {
     setSearchInput("")
-    setFilterStatus("")
+    setFilterDispensaryId("")
     setFilterDateRange(undefined)
   }
 
-  const handleDeleteOrder = () => {
+  const handleConfirmDelete = async () => {
     if (!deletingOrder) return
-
-    deleteOrderMutation.mutate(deletingOrder.id, {
-      onSuccess: () => {
-        toast.success("Order deleted successfully")
-        closeDeleteModal()
-      },
-      onError: () => {
-        toast.error("Failed to delete order")
-      },
-    })
+    try {
+      await deleteOrderMutation.mutateAsync(deletingOrder.id)
+      toast.success("Order deleted successfully")
+      closeDeleteModal()
+    } catch {
+      toast.error("Failed to delete order")
+    }
   }
 
   return (
-    <DashboardLayout role="dispensary">
+    <DashboardLayout role="delivery">
       <div className="space-y-6 p-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">Orders</h2>
-            <p className="text-muted-foreground">
-              Manage and track all your orders
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleViewMode}
-              title={viewMode === "card" ? "Switch to Table View" : "Switch to Card View"}
-            >
-              {viewMode === "card" ? <Table className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-            </Button>
-            <Button onClick={openCreateModal}>Create New Order</Button>
-          </div>
-        </div>
-
-        {/* Filter bar */}
-        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-1 flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-50 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by name, phone, address..."
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              className="pl-9"
+              className="pl-9 flex-1"
             />
           </div>
 
           <Select
-            value={filterStatus || "all"}
-            onValueChange={val => setFilterStatus(val === "all" ? "" : val)}
+            value={filterDispensaryId || "all"}
+            onValueChange={val => setFilterDispensaryId(val === "all" ? "" : val)}
           >
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Statuses" />
+            <SelectTrigger className="w-50">
+              <SelectValue placeholder="All Dispensaries" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              {orderStatusOptions.map(opt => (
+              <SelectItem value="all">All Dispensaries</SelectItem>
+              {dispensaryOptions.map(opt => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
                 </SelectItem>
@@ -143,6 +126,40 @@ export default function OrdersPage() {
             </Button>
           )}
         </div>
+          <div className="flex items-center">
+            <Button
+              variant={viewMode === "card" ? "secondary" : "outline"}
+              size="icon"
+              onClick={() => setViewMode("card")}
+              title="Card View"
+              className="rounded-none! rounded-bl-sm! rounded-tl-sm!"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "table" ? "secondary" : "outline"}
+              size="icon"
+              onClick={() => setViewMode("table")}
+              title="Table View"
+              className="rounded-none!"
+            >
+              <Table className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "dispensary" ? "secondary" : "outline"}
+              size="icon"
+              onClick={() => setViewMode("dispensary")}
+              title="Dispensary View"
+              className="rounded-none! rounded-br-sm! rounded-tr-sm!"
+            >
+              <Columns2 className="h-4 w-4" />
+            </Button>
+            <Button className="ml-4" onClick={openCreateModal}>Create New Order</Button>
+          </div>
+        </div>
+
+        {/* Filter bar */}
+        
 
         {isLoading && (
           <div className="text-center py-12">
@@ -167,8 +184,15 @@ export default function OrdersPage() {
                 onEditOrder={openEditModal}
                 onDeleteOrder={openDeleteModal}
               />
-            ) : (
+            ) : viewMode === "table" ? (
               <OrderTableView
+                orders={orders}
+                onViewOrder={openViewModal}
+                onEditOrder={openEditModal}
+                onDeleteOrder={openDeleteModal}
+              />
+            ) : (
+              <OrderDispensaryView
                 orders={orders}
                 onViewOrder={openViewModal}
                 onEditOrder={openEditModal}
@@ -188,26 +212,27 @@ export default function OrdersPage() {
         )}
       </div>
 
-      <CreateOrderModal
-        open={isCreateModalOpen}
-        onOpenChange={closeModal}
-        order={editingOrder}
-      />
-
       <ViewOrderDetailsModal
         open={!!viewingOrder}
-        onOpenChange={(open) => !open && closeViewModal()}
+        onOpenChange={open => !open && closeViewModal()}
         order={viewingOrder}
+      />
+
+      <CreateOrderModal
+        open={isCreateModalOpen}
+        onOpenChange={closeCreateModal}
+        order={editingOrder}
       />
 
       <ConfirmationModal
         open={!!deletingOrder}
-        onOpenChange={(open) => !open && closeDeleteModal()}
-        onConfirm={handleDeleteOrder}
+        onOpenChange={open => !open && closeDeleteModal()}
+        onConfirm={handleConfirmDelete}
         title="Delete Order"
-        description={`Are you sure you want to delete order ${deletingOrder?.posOrderId || deletingOrder?.id.slice(0, 8)}? This action cannot be undone.`}
+        description={`Are you sure you want to delete order #${
+          deletingOrder?.posOrderId || deletingOrder?.id?.slice(0, 8)
+        }? This action cannot be undone.`}
         confirmText="Delete"
-        cancelText="Cancel"
         isLoading={deleteOrderMutation.isPending}
         variant="destructive"
       />

@@ -16,6 +16,8 @@ import {
   Truck,
   User,
   Link2,
+  Pin,
+  Route,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -41,7 +43,9 @@ const navigationItems: Record<"dispensary" | "delivery" | "admin", NavItem[]> = 
     { label: "Dashboard", href: "/delivery/dashboard", icon: LayoutDashboard },
     { label: "Map", href: "/delivery/map", icon: Map },
     { label: "Orders", href: "/delivery/orders", icon: ShoppingCart },
+    { label: "Trips", href: "/delivery/trips", icon: Route },
     { label: "Connections", href: "/delivery/connections", icon: Link2 },
+    { label: "Route Optimization", href: "/delivery/route-optimization", icon: Pin },
     { label: "Profile", href: "/delivery/profile", icon: User },
     { label: "Settings", href: "/delivery/settings", icon: Settings },
   ],

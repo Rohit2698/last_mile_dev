@@ -8,7 +8,7 @@ import { DispensaryCardView } from "./components/DispensaryCardView"
 import { DispensaryTableView } from "./components/DispensaryTableView"
 import { DispensaryDetailDialog } from "./components/DispensaryDetailDialog"
 import { DocumentReviewDialog } from "./components/DocumentReviewDialog"
-import { Pagination } from "./components/Pagination"
+import { Pagination } from "@/components/Pagination"
 
 export default function DispensaryApprovalPage() {
   const {

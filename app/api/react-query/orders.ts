@@ -6,18 +6,63 @@ export interface Order {
   dispensaryId: string
   noOfItems: number
   customerName: string
+  customerEmail: string
   customerPhone: string
+  customerType: "MED" | "REC"
   deliveryAddress: string
   primaryTimeSlot: string
-  secondaryTimeSlot?: string | null
   productTotal: number
   deliveryFee: number
   deliveryDate: string
   deliveryNotes?: string | null
   posOrderId?: string | null
+  assignedDeliveryPartnerId?: string | null
+  assignedDriverId?: string | null
+  assignedSecondaryDriverId?: string | null
+  assignedVehicleId?: string | null
+  routeId?: string | null
   status: string
   createdAt: string
   updatedAt: string
+  dispensary?: {
+    id: string
+    name: string
+    email: string
+    phone?: string | null
+  } | null
+  assignedDeliveryPartner?: {
+    id: string
+    companyName: string
+    email: string
+    phone?: string | null
+  } | null
+  primaryDriver?: {
+    id: string
+    firstName: string
+    lastName: string
+    phone: string
+    email: string
+  } | null
+  secondaryDriver?: {
+    id: string
+    firstName: string
+    lastName: string
+    phone: string
+    email: string
+  } | null
+  vehicle?: {
+    id: string
+    name: string
+    plateNumber: string
+    make?: string | null
+    model?: string | null
+    year?: number | null
+  } | null
+  route?: {
+    id: string
+    status: string
+    routeDate: string
+  } | null
 }
 
 interface OrdersResponse {
@@ -41,30 +86,48 @@ interface CreateOrderResponse {
 export interface CreateOrderData {
   noOfItems: number
   customerName: string
+  customerEmail?: string
   customerPhone: string
+  customerType?: "MED" | "REC"
   deliveryAddress: string
   primaryTimeSlot: string
-  secondaryTimeSlot?: string
   productTotal: number
   deliveryFee: number
   deliveryDate: string
   deliveryNotes?: string
   posOrderId?: string
+  assignedDeliveryPartnerId?: string
 }
 
 interface OrdersQueryParams {
   page?: number
   limit?: number
+  search?: string
+  status?: string
+  deliveryDateFrom?: string
+  deliveryDateTo?: string
 }
 
 export const useOrdersQuery = (params?: OrdersQueryParams) => {
   return useQuery({
-    queryKey: ["orders", params?.page, params?.limit],
+    queryKey: [
+      "orders",
+      params?.page,
+      params?.limit,
+      params?.search,
+      params?.status,
+      params?.deliveryDateFrom,
+      params?.deliveryDateTo,
+    ],
     queryFn: async () => {
       const response = await apiClient.get<OrdersResponse>("/dispensary/orders", {
         params: {
           page: params?.page || 1,
           limit: params?.limit || 20,
+          ...(params?.search ? { search: params.search } : {}),
+          ...(params?.status ? { status: params.status } : {}),
+          ...(params?.deliveryDateFrom ? { deliveryDateFrom: params.deliveryDateFrom } : {}),
+          ...(params?.deliveryDateTo ? { deliveryDateTo: params.deliveryDateTo } : {}),
         },
       })
       return response.data

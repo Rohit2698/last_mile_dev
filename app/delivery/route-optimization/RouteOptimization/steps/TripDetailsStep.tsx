@@ -1,14 +1,17 @@
 "use client"
 
-import React from "react"
-import { Clock, MapPin, Package, User } from "lucide-react"
+import React, { useState } from "react"
+import { Clock, MapPin, Package, User, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "react-toastify"
+import { useAssignDriverToOrderMutation } from "@/app/api/react-query/deliveryOrders"
 import { TripAssignment } from "../type"
 
 interface TripDetailsStepProps {
   tripAssignments: TripAssignment[]
   onBack: () => void
+  onConfirmed?: () => void
 }
 
 function AssignmentCard({ assignment }: { assignment: TripAssignment }) {
@@ -77,11 +80,33 @@ function AssignmentCard({ assignment }: { assignment: TripAssignment }) {
 const TripDetailsStep: React.FC<TripDetailsStepProps> = ({
   tripAssignments,
   onBack,
+  onConfirmed,
 }) => {
+  const [isConfirmed, setIsConfirmed] = useState(false)
+  const assignDriver = useAssignDriverToOrderMutation()
+
   const totalDeliveries = tripAssignments.reduce(
     (sum, a) => sum + a.deliveryCount,
     0,
   )
+
+  const handleConfirm = async () => {
+    const pairs: { orderId: string; driverId: string }[] = []
+    for (const assignment of tripAssignments) {
+      for (const order of assignment.orders) {
+        pairs.push({ orderId: order.id, driverId: assignment.driver.id })
+      }
+    }
+
+    try {
+      await Promise.all(pairs.map((p) => assignDriver.mutateAsync(p)))
+      setIsConfirmed(true)
+      toast.success(`${pairs.length} order${pairs.length !== 1 ? "s" : ""} assigned successfully`)
+      onConfirmed?.()
+    } catch {
+      toast.error("Failed to assign some orders. Please try again.")
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -101,12 +126,24 @@ const TripDetailsStep: React.FC<TripDetailsStepProps> = ({
       </div>
 
       <div className="flex justify-between pt-2">
-        <Button type="button" variant="outline" onClick={onBack}>
+        <Button type="button" variant="outline" onClick={onBack} disabled={assignDriver.isPending || isConfirmed}>
           ← Back
         </Button>
-        <Button type="button" variant="default">
-          Confirm & Start
-        </Button>
+        {isConfirmed ? (
+          <div className="flex items-center gap-2 text-sm font-medium text-green-600">
+            <CheckCircle size={16} />
+            <span>All orders assigned!</span>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="default"
+            onClick={handleConfirm}
+            disabled={assignDriver.isPending}
+          >
+            {assignDriver.isPending ? "Assigning..." : "Confirm & Start"}
+          </Button>
+        )}
       </div>
     </div>
   )

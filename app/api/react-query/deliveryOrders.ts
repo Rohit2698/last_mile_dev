@@ -123,3 +123,18 @@ export const useDeleteDeliveryOrderMutation = () => {
     },
   })
 }
+
+export const useAssignDriverToOrderMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ orderId, driverId }: { orderId: string; driverId: string }) => {
+      const response = await deliveryApiClient.post(`/orders/${orderId}/assign-driver`, {
+        driverId,
+      })
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["delivery-orders"] })
+    },
+  })
+}

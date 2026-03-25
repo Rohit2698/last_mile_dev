@@ -102,16 +102,32 @@ export interface CreateOrderData {
 interface OrdersQueryParams {
   page?: number
   limit?: number
+  search?: string
+  status?: string
+  deliveryDateFrom?: string
+  deliveryDateTo?: string
 }
 
 export const useOrdersQuery = (params?: OrdersQueryParams) => {
   return useQuery({
-    queryKey: ["orders", params?.page, params?.limit],
+    queryKey: [
+      "orders",
+      params?.page,
+      params?.limit,
+      params?.search,
+      params?.status,
+      params?.deliveryDateFrom,
+      params?.deliveryDateTo,
+    ],
     queryFn: async () => {
       const response = await apiClient.get<OrdersResponse>("/dispensary/orders", {
         params: {
           page: params?.page || 1,
           limit: params?.limit || 20,
+          ...(params?.search ? { search: params.search } : {}),
+          ...(params?.status ? { status: params.status } : {}),
+          ...(params?.deliveryDateFrom ? { deliveryDateFrom: params.deliveryDateFrom } : {}),
+          ...(params?.deliveryDateTo ? { deliveryDateTo: params.deliveryDateTo } : {}),
         },
       })
       return response.data

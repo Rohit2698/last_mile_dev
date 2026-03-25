@@ -55,7 +55,7 @@ export const OrderDispensaryView = ({
           return (
             <div
               key={group.id}
-              className="flex-1 min-w-68  max-w-[320px] flex flex-col gap-3"
+              className="flex-1 cursor-pointer min-w-68  max-w-[320px] flex flex-col gap-3"
             >
               {/* Column header */}
               <div
@@ -74,7 +74,7 @@ export const OrderDispensaryView = ({
               {/* Order cards */}
               <div className="flex h-[calc(100vh-250px)] overflow-auto flex-col gap-2">
                 {group.orders.map(order => (
-                  <button
+                  <div
                     key={order.id}
                     onClick={() => onViewOrder?.(order)}
                     className={`w-full text-left bg-card border border-border/50 border-l-[3px] ${color.border} rounded-lg p-3 hover:shadow-sm transition-shadow flex flex-col gap-2`}
@@ -137,7 +137,7 @@ export const OrderDispensaryView = ({
                         </p>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

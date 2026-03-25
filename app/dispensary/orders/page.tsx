@@ -2,14 +2,25 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { LayoutGrid, Table } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { LayoutGrid, Table, Search, X } from "lucide-react"
 import { useOrdersPage } from "./useOrdersPage"
 import { OrderCardView } from "./OrderCardView"
 import { OrderTableView } from "./OrderTableView"
 import { CreateOrderModal } from "./CreateOrderModal"
 import { ViewOrderDetailsModal } from "./ViewOrderDetailsModal"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
+import { Pagination } from "@/components/Pagination"
+import { FormDateRangePicker } from "@/components/fields/FormDateRangePicker"
 import { useDeleteOrderMutation } from "@/app/api/react-query/orders"
+import { orderStatusOptions } from "./util"
 import { toast } from "react-toastify"
 
 export default function OrdersPage() {
@@ -33,9 +44,23 @@ export default function OrdersPage() {
     viewingOrder,
     openViewModal,
     closeViewModal,
+    searchInput,
+    setSearchInput,
+    filterStatus,
+    setFilterStatus,
+    filterDateRange,
+    setFilterDateRange,
   } = useOrdersPage()
 
   const deleteOrderMutation = useDeleteOrderMutation()
+
+  const hasActiveFilters = !!searchInput || !!filterStatus || !!filterDateRange?.from
+
+  const clearFilters = () => {
+    setSearchInput("")
+    setFilterStatus("")
+    setFilterDateRange(undefined)
+  }
 
   const handleDeleteOrder = () => {
     if (!deletingOrder) return
@@ -74,6 +99,51 @@ export default function OrdersPage() {
           </div>
         </div>
 
+        {/* Filter bar */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-50 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, phone, address..."
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <Select
+            value={filterStatus || "all"}
+            onValueChange={val => setFilterStatus(val === "all" ? "" : val)}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              {orderStatusOptions.map(opt => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <FormDateRangePicker
+            dateRange={filterDateRange}
+            onDateRangeChange={setFilterDateRange}
+            onApply={setFilterDateRange}
+            placeholder="Filter by delivery date"
+            className="w-64"
+          />
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1 text-muted-foreground">
+              <X className="h-4 w-4" />
+              Clear filters
+            </Button>
+          )}
+        </div>
+
         {isLoading && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading orders...</p>
@@ -106,34 +176,14 @@ export default function OrdersPage() {
               />
             )}
 
-            {meta && meta.totalPages > 1 && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Showing {orders.length} of {meta.total} orders
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm">
-                    Page {currentPage} of {meta.totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= meta.totalPages}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={meta?.totalPages ?? 0}
+              onPageChange={handlePageChange}
+              total={meta?.total}
+              showing={orders.length}
+              itemLabel="orders"
+            />
           </>
         )}
       </div>

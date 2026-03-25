@@ -18,6 +18,7 @@ import { OrderDispensaryView } from "./OrderDispensaryView"
 import { ViewOrderDetailsModal } from "./ViewOrderDetailsModal"
 import { CreateOrderModal } from "./CreateOrderModal"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
+import { Pagination } from "@/components/Pagination"
 import { FormDateRangePicker } from "@/components/fields/FormDateRangePicker"
 import { useDeleteDeliveryOrderMutation } from "@/app/api/react-query/deliveryOrders"
 import { useDeliveryConnections } from "@/app/api/react-query/connections"
@@ -199,34 +200,14 @@ export default function DeliveryOrdersPage() {
               />
             )}
 
-            {meta && meta.totalPages > 1 && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Showing {orders.length} of {meta.total} orders
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm">
-                    Page {currentPage} of {meta.totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= meta.totalPages}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={meta?.totalPages ?? 0}
+              onPageChange={handlePageChange}
+              total={meta?.total}
+              showing={orders.length}
+              itemLabel="orders"
+            />
           </>
         )}
       </div>

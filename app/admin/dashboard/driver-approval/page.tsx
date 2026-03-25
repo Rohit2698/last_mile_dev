@@ -24,6 +24,7 @@ import {
 import apiClient from "@/lib/apiClient"
 import { toast } from "react-toastify"
 import { Search, Eye, User, Phone, Mail, IdCard, Calendar } from "lucide-react"
+import { Pagination } from "@/components/Pagination"
 
 interface Driver {
   id: string
@@ -197,29 +198,11 @@ export default function DriverApprovalPage() {
                 </Table>
               </div>
 
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </>
           )}
         </CardContent>

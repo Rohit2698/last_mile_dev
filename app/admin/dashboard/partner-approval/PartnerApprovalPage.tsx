@@ -8,6 +8,7 @@ import { usePartnerApproval } from "./usePartnerApproval"
 import { PartnerTableView } from "./components/PartnerTableView"
 import { PartnerDetailDialog } from "./components/PartnerDetailDialog"
 import { DocumentReviewDialog } from "./components/DocumentReviewDialog"
+import { Pagination } from "@/components/Pagination"
 
 export default function PartnerApprovalPage() {
   const {
@@ -68,29 +69,11 @@ export default function PartnerApprovalPage() {
             <PartnerTableView partners={partners} onViewDetails={viewDetails} />
           )}
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </CardContent>
       </Card>
 

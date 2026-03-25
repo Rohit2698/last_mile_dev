@@ -108,12 +108,6 @@ export default function DeliveryConnectionsPage() {
   return (
     <DashboardLayout role="delivery">
       <div className="space-y-6 p-4 max-w-3xl">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Connections</h2>
-          <p className="text-muted-foreground">
-            Connect with dispensaries using 6-digit codes
-          </p>
-        </div>
 
         {/* Your Code */}
         <Card className="p-6 space-y-3">

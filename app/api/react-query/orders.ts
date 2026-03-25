@@ -24,6 +24,12 @@ export interface Order {
   status: string
   createdAt: string
   updatedAt: string
+  dispensary?: {
+    id: string
+    name: string
+    email: string
+    phone?: string | null
+  } | null
   assignedDeliveryPartner?: {
     id: string
     companyName: string

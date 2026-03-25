@@ -14,9 +14,46 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { User as UserType } from "@/context/DispensaryAuthContext"
 import { AdminUser } from "@/context/AdminAuthContext"
 import { DeliveryUser } from "@/context/DeliveryAuthContext"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Badge } from "./ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
+
+const ROUTE_LABELS: Record<string, string> = {
+  // Dispensary
+  "/dispensary/orders": "Orders",
+  "/dispensary/drivers": "Drivers",
+  "/dispensary/vehicles": "Vehicles",
+  "/dispensary/routes": "Routes",
+  "/dispensary/billing": "Billing",
+  "/dispensary/map": "Live Map",
+  "/dispensary/connections": "Connections",
+  "/dispensary/profile": "Profile",
+  "/dispensary/settings": "Settings",
+  // Delivery
+  "/delivery/orders": "Orders",
+  "/delivery/drivers": "Drivers",
+  "/delivery/vehicles": "Vehicles",
+  "/delivery/routes": "Routes",
+  "/delivery/connections": "Connections",
+  "/delivery/profile": "Profile",
+  "/delivery/settings": "Settings",
+  // Admin
+  "/admin/dashboard": "Dashboard",
+  "/admin/dashboard/dispensary-approval": "Dispensary Approval",
+  "/admin/dashboard/partner-approval": "Partner Approval",
+  "/admin/dashboard/driver-approval": "Driver Approval",
+  "/admin/profile": "Profile",
+}
+
+function getPageLabel(pathname: string): string {
+  // Exact match first
+  if (ROUTE_LABELS[pathname]) return ROUTE_LABELS[pathname]
+  // Longest prefix match for nested routes
+  const match = Object.keys(ROUTE_LABELS)
+    .filter(route => pathname.startsWith(route))
+    .sort((a, b) => b.length - a.length)[0]
+  return match ? ROUTE_LABELS[match] : "Dashboard"
+}
 
 type DashboardHeaderProps = {
   user: UserType | AdminUser | DeliveryUser | null
@@ -26,6 +63,8 @@ type DashboardHeaderProps = {
 }
 export function DashboardHeader({ user, logout, verificationStatus, type }: DashboardHeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const pageLabel = getPageLabel(pathname)
 
   const handleLogout = () => {
     logout()
@@ -42,12 +81,13 @@ export function DashboardHeader({ user, logout, verificationStatus, type }: Dash
     }
   }
 
+  
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6">
         {/* Left side - can be used for breadcrumbs or page title */}
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold">Dashboard</h1>
+          <h1 className="text-xl font-semibold">{pageLabel}</h1>
         </div>
 
         <div className="flex items-center gap-2">

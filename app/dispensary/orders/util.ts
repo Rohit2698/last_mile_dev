@@ -4,16 +4,19 @@ export type ViewMode = "table" | "card"
 
 export const createOrderSchema = z.object({
   customerName: z.string().min(1, "Customer name is required"),
+  customerEmail: z.string().email("Valid email is required").min(1, "Customer email is required").optional(),
   customerPhone: z.string().min(10, "Valid phone number is required"),
+  customerType: z.enum(["MED", "REC"]),
   deliveryAddress: z.string().min(5, "Delivery address is required"),
   primaryTimeSlot: z.string().min(1, "Primary time slot is required"),
-  secondaryTimeSlot: z.string().optional(),
   noOfItems: z.union([z.string().min(1, "Number of items is required"), z.number().min(1, "At least 1 item is required")]),
   productTotal: z.union([z.string().min(1, "Product total is required"), z.number().min(0, "Product total must be positive")]),
   deliveryFee: z.union([z.string().min(1, "Delivery fee is required"), z.number().min(0, "Delivery fee must be positive")]),
   deliveryDate: z.string().min(1, "Delivery date is required"),
   deliveryNotes: z.string().optional(),
   posOrderId: z.string().optional(),
+  assignedDeliveryPartnerId: z.string().optional(),
+  status: z.string().optional(),
 })
 
 export type CreateOrderFormData = z.infer<typeof createOrderSchema>

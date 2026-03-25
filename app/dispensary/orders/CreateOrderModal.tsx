@@ -8,6 +8,7 @@ import {
   useUpdateOrderMutation,
   Order,
 } from "@/app/api/react-query/orders"
+import { useDispensaryConnections } from "@/app/api/react-query/connections"
 import {
   Dialog,
   DialogContent,
@@ -46,57 +47,74 @@ export const CreateOrderModal = ({
 }: CreateOrderModalProps) => {
   const createOrderMutation = useCreateOrderMutation()
   const updateOrderMutation = useUpdateOrderMutation()
+  const { data: connections } = useDispensaryConnections()
   const isEditMode = !!order
+
+  const deliveryPartnerOptions = (connections ?? [])
+    .filter((c) => c.status === "ACTIVE")
+    .map((c) => ({
+      value: c.deliveryPartner!.id,
+      label: c.deliveryPartner!.companyName,
+    }))
+
+  const customerTypeOptions = [
+    { value: "REC", label: "Recreational (REC)" },
+    { value: "MED", label: "Medical (MED)" },
+  ]
 
   const form = useForm<UpdateOrderFormData>({
     resolver: zodResolver(updateOrderSchema),
     defaultValues: {
       customerName: "",
+      customerEmail: "",
       customerPhone: "",
+      customerType: "REC",
       deliveryAddress: "",
       primaryTimeSlot: "",
-      secondaryTimeSlot: "",
       noOfItems: "1",
       productTotal: "0",
       deliveryFee: "0",
       deliveryDate: "",
       deliveryNotes: "",
       posOrderId: "",
+      assignedDeliveryPartnerId: "",
       status: "PENDING",
     },
   })
 
   useEffect(() => {
     if (order && open) {
-      // Pre-populate form with order data for editing
       form.reset({
         customerName: order.customerName,
+        customerEmail: order.customerEmail,
         customerPhone: order.customerPhone,
+        customerType: order.customerType ?? "REC",
         deliveryAddress: order.deliveryAddress,
         primaryTimeSlot: order.primaryTimeSlot,
-        secondaryTimeSlot: order.secondaryTimeSlot || "",
-        noOfItems: order.noOfItems as string | number, // Accept both string and number  
-        productTotal: order.productTotal as string | number, // Accept both string and number
-        deliveryFee: order.deliveryFee as string | number, // Accept both string and number
-        deliveryDate: order.deliveryDate.split("T")[0], // Format date for input
+        noOfItems: order.noOfItems as string | number,
+        productTotal: order.productTotal as string | number,
+        deliveryFee: order.deliveryFee as string | number,
+        deliveryDate: order.deliveryDate.split("T")[0],
         deliveryNotes: order.deliveryNotes || "",
         posOrderId: order.posOrderId || "",
+        assignedDeliveryPartnerId: order.assignedDeliveryPartnerId || "",
         status: order.status,
       })
     } else if (!order && open) {
-      // Reset form for create mode
       form.reset({
         customerName: "",
+        customerEmail: "",
         customerPhone: "",
+        customerType: "REC",
         deliveryAddress: "",
         primaryTimeSlot: "",
-        secondaryTimeSlot: "",
         noOfItems: "1",
         productTotal: "0",
         deliveryFee: "0",
         deliveryDate: "",
         deliveryNotes: "",
         posOrderId: "",
+        assignedDeliveryPartnerId: "",
         status: "PENDING",
       })
     }
@@ -104,23 +122,22 @@ export const CreateOrderModal = ({
 
   const onSubmit = async (data: UpdateOrderFormData) => {
     try {
-      // Convert string values to numbers for API
       const apiData = {
         ...data,
         noOfItems: Number(data.noOfItems),
         productTotal: Number(data.productTotal),
         deliveryFee: Number(data.deliveryFee),
+        customerEmail: data.customerEmail || undefined,
+        assignedDeliveryPartnerId: data.assignedDeliveryPartnerId || undefined,
       }
 
       if (isEditMode && order) {
-        // Update existing order
         await updateOrderMutation.mutateAsync({
           orderId: order.id,
           data: apiData,
         })
         toast.success("Order updated successfully")
       } else {
-        // Create new order (exclude status from payload)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { status, ...createData } = apiData
         await createOrderMutation.mutateAsync(createData)
@@ -186,6 +203,25 @@ export const CreateOrderModal = ({
               />
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <FormInputField
+                name="customerEmail"
+                control={form.control}
+                label="Customer Email"
+                placeholder="customer@example.com"
+                type="email"
+                required
+              />
+
+              <FormSelect
+                control={form.control}
+                name="customerType"
+                label="Customer Type"
+                options={customerTypeOptions}
+                required
+              />
+            </div>
+
             <FormTextareaField
               name="deliveryAddress"
               control={form.control}
@@ -195,7 +231,7 @@ export const CreateOrderModal = ({
               required
             />
 
-            <div>
+            <div className="grid grid-cols-2 gap-4 items-baseline">
               <FormInputField
                 name="deliveryDate"
                 control={form.control}
@@ -203,23 +239,17 @@ export const CreateOrderModal = ({
                 type="date"
                 required
               />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <FormTimeRangeField
-                name="primaryTimeSlot"
-                control={form.control}
-                label="Primary Time Slot"
-                required
-                description="Select start and end time"
-              />
-              <FormTimeRangeField
-                name="secondaryTimeSlot"
-                control={form.control}
-                label="Secondary Time Slot (Optional)"
-                description="Select start and end times for backup slot"
-              />
+              name="primaryTimeSlot"
+              control={form.control}
+              label="Primary Time Slot"
+              required
+              description="Select start and end time"
+            />
+
             </div>
 
+            
             <div className="grid grid-cols-3 gap-4">
               <FormNumberField
                 name="noOfItems"
@@ -247,6 +277,14 @@ export const CreateOrderModal = ({
                 required
               />
             </div>
+
+            <FormSelect
+              control={form.control}
+              name="assignedDeliveryPartnerId"
+              label="Delivery Partner (Optional)"
+              options={deliveryPartnerOptions}
+              placeholder="Select a connected delivery partner"
+            />
 
             <FormInputField
               name="posOrderId"

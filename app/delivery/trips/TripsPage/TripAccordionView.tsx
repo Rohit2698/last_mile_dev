@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { useRouter } from "next/navigation"
 import { MapPin, Package, Calendar, Clock, User, Store } from "lucide-react"
 import {
   Accordion,
@@ -26,8 +27,13 @@ function EmptyState() {
 }
 
 function OrderRow({ order }: { order: DriverTrip["orders"][number] }) {
+  const router = useRouter()
+
   return (
-    <div className="flex items-start gap-4 py-3 border-b last:border-0">
+    <div
+      className="flex items-start gap-4 py-3 border-b last:border-0 cursor-pointer hover:bg-muted/40 rounded px-1 -mx-1 transition-colors"
+      onClick={() => router.push(`/delivery/trips/${order.id}`)}
+    >
       <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm">
         <div>
           <p className="font-medium">

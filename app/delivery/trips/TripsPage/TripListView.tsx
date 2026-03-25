@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { useRouter } from "next/navigation"
 import { MapPin, Package, Calendar, Clock, Store } from "lucide-react"
 import {
   Table,
@@ -27,6 +28,8 @@ function EmptyState() {
 }
 
 const TripListView: React.FC<TripListViewProps> = ({ orders }) => {
+  const router = useRouter()
+
   if (orders.length === 0) {
     return <EmptyState />
   }
@@ -50,7 +53,11 @@ const TripListView: React.FC<TripListViewProps> = ({ orders }) => {
         </TableHeader>
         <TableBody>
           {orders.map((order) => (
-            <TableRow key={order.id}>
+            <TableRow
+              key={order.id}
+              className="cursor-pointer hover:bg-muted/60"
+              onClick={() => router.push(`/delivery/trips/${order.id}`)}
+            >
               <TableCell className="font-medium whitespace-nowrap">
                 #{order.posOrderId || order.id.slice(0, 8)}
               </TableCell>

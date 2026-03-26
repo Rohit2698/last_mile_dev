@@ -10,12 +10,12 @@ import CreateRouteStep from "./steps/CreateRouteStep"
 import SelectOrdersStep from "./steps/SelectOrdersStep"
 import SelectDriversStep from "./steps/SelectDriversStep"
 import TripDetailsStep from "./steps/TripDetailsStep"
+import { useRouter } from "next/navigation"
 
 const GOOGLE_MAPS_LIBRARIES: ("places")[] = ["places"]
 
 const RouteOptimization: React.FC = () => {
   const { isLoaded } = useJsApiLoader({
-    id: "route-optimization-map",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries: GOOGLE_MAPS_LIBRARIES,
   })
@@ -24,7 +24,7 @@ const RouteOptimization: React.FC = () => {
   const dispensaryOptions = (connections ?? [])
     .filter((c) => c.status === "ACTIVE")
     .map((c) => ({ value: c.dispensary!.id, label: c.dispensary!.name }))
-
+  const route = useRouter();
   const {
     currentStep,
     createRouteForm,
@@ -86,6 +86,9 @@ const RouteOptimization: React.FC = () => {
       <TripDetailsStep
         tripAssignments={tripAssignments}
         onBack={goBack}
+        onConfirmed={() => {
+          route.push("/delivery/trips"); // Replace "/some-path" with the actual path you want to navigate to
+        }}
       />
     )
   }

@@ -36,14 +36,14 @@ export interface OnboardRequirementsConfig {
 
 export interface DeliveryWindow {
     id?: string;
-    day: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+    day: number; // 0-6 (Sunday-Saturday)
     startTime: string;
     endTime: string;
     isActive: boolean;
 }
 
 export interface CreateDeliveryWindowRequest {
-    day: DeliveryWindow["day"];
+    day: number; // 0-6 (Sunday-Saturday)
     startTime: string;
     endTime: string;
     isActive: boolean;
@@ -430,8 +430,14 @@ export const useUpdateNotificationSettings = () => {
 // NOTE: delivery windows endpoints are not present in the current Go router;
 // these will work once the backend exposes /v1/dispensary/delivery-windows.
 const fetchDeliveryWindows = async (): Promise<DeliveryWindow[]> => {
-    const res = await deliveryApiClient.get("/dispensary/delivery-windows");
-    return (res.data?.data ?? []) as DeliveryWindow[];
+    const res = await deliveryApiClient.get("/delivery-partner/delivery-windows");
+    return (res.data?.data ?? []).map((window: any) => ({
+        id: window.id,
+        day: window.dayOfWeek, // Keep as numeric (0-6)
+        startTime: window.startTime,
+        endTime: window.endTime,
+        isActive: window.isActive
+    })) as DeliveryWindow[];
 };
 
 export const useDeliveryWindows = () => {
@@ -443,21 +449,21 @@ export const useDeliveryWindows = () => {
 };
 
 const createDeliveryWindow = async (data: CreateDeliveryWindowRequest): Promise<DeliveryWindow> => {
-    const res = await deliveryApiClient.post("/dispensary/delivery-windows", data);
+    const res = await deliveryApiClient.post("/delivery-partner/delivery-windows", data);
     return res.data?.data as DeliveryWindow;
 };
 
 const updateDeliveryWindow = async (data: UpdateDeliveryWindowRequest): Promise<DeliveryWindow> => {
-    const res = await deliveryApiClient.put(`/dispensary/delivery-windows/${data.id}`, data);
+    const res = await deliveryApiClient.put(`/delivery-partner/delivery-windows/${data.id}`, data);
     return res.data?.data as DeliveryWindow;
 };
 
 const deleteDeliveryWindow = async (id: string): Promise<void> => {
-    await deliveryApiClient.delete(`/dispensary/delivery-windows/${id}`);
+    await deliveryApiClient.delete(`/delivery-partner/delivery-windows/${id}`);
 };
 
 const batchUpdateDeliveryWindows = async (data: BatchUpdateDeliveryWindowsRequest): Promise<DeliveryWindow[]> => {
-    const res = await deliveryApiClient.put("/dispensary/delivery-windows", data);
+    const res = await deliveryApiClient.put("/delivery-partner/delivery-windows", data);
     return (res.data?.data ?? []) as DeliveryWindow[];
 };
 

@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/purity */
 "use client"
 
 import React, { useState, useEffect } from "react"
@@ -20,14 +20,34 @@ import {
 } from "@/app/api/react-query/deliveryPartnerConfiguration"
 import { dayOptions } from "@/lib/options"
 
-const DAYS_OF_WEEK = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
+const DAYS_OF_WEEK = [{
+    value: 1,
+    label: "Monday",
+  },
+  {
+    value: 2,
+    label: "Tuesday",
+  },
+  {
+    value: 3,
+    label: "Wednesday",
+  },
+  {
+    value: 4,
+    label: "Thursday",
+  },
+  {
+    value: 5,
+    label: "Friday",
+  },
+  {
+    value: 6,
+    label: "Saturday",
+  },
+  {
+    value: 7,
+    label: "Sunday",
+  },
 ] as const
 
 interface LocalWindow extends Omit<DeliveryWindow, "id"> {
@@ -37,6 +57,7 @@ interface LocalWindow extends Omit<DeliveryWindow, "id"> {
 
 export const DeliveryWindowsTab: React.FC = () => {
   const { data: serverWindows = [], isLoading } = useDeliveryWindows()
+  console.log("debug:Fetched delivery windows from server:", serverWindows)
   const batchUpdateMutation = useBatchUpdateDeliveryWindows()
 
   // Local state for managing windows before saving
@@ -50,13 +71,13 @@ export const DeliveryWindowsTab: React.FC = () => {
   }, [serverWindows])
 
   const getWindowsForDay = (day: string): LocalWindow[] => {
-    return localWindows.filter(w => w.day === day)
+    return localWindows.filter(w => w.day.toString() === day.toString())
   }
 
   const handleAddWindow = (day: string) => {
     const newWindow: LocalWindow = {
       tempId: `temp-${Date.now()}`,
-      day: day as DeliveryWindow["day"],
+      day: parseInt(day, 10),
       startTime: "09:00",
       endTime: "17:00",
       isActive: true,
@@ -131,13 +152,13 @@ export const DeliveryWindowsTab: React.FC = () => {
         <CardContent>
           <div className="space-y-3">
             {DAYS_OF_WEEK.map(day => {
-              const windows = getWindowsForDay(day)
+              const windows = getWindowsForDay(day.value.toString())
               const dayLabel =
-                dayOptions.find(opt => opt.value === day)?.label || day
+                dayOptions.find(opt => opt.value === day.value)?.label || day.label
 
               return (
                 <div
-                  key={day}
+                  key={day.value}
                   className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-b-0 last:pb-0"
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -147,7 +168,7 @@ export const DeliveryWindowsTab: React.FC = () => {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleAddWindow(day)}
+                      onClick={() => handleAddWindow(day.value.toString())}
                       className="h-7 text-xs"
                     >
                       <Plus className="h-3 w-3 mr-1" />

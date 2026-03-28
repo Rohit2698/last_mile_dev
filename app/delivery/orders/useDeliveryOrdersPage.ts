@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import type { DateRange } from "react-day-picker"
-import { format } from "date-fns"
+import { format, startOfDay, endOfDay, addDays } from "date-fns"
 import { Order } from "@/app/api/react-query/orders"
 import { useDeliveryOrdersQuery } from "@/app/api/react-query/deliveryOrders"
 import { ViewMode } from "./util"
 
 export const useDeliveryOrdersPage = () => {
-  const [viewMode, setViewMode] = useState<ViewMode>("card")
+  const [viewMode, setViewMode] = useState<ViewMode>("dispensary")
   const [currentPage, setCurrentPage] = useState(1)
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -17,6 +17,8 @@ export const useDeliveryOrdersPage = () => {
   const [searchInput, setSearchInput] = useState("")
   const [search, setSearch] = useState("")
   const [filterDispensaryId, setFilterDispensaryId] = useState("")
+  const [filterStatus, setFilterStatus] = useState("")
+  const [filterDateType, setFilterDateType] = useState("today")
   const [filterDateRange, setFilterDateRange] = useState<DateRange | undefined>(undefined)
 
   const handleFilterDispensaryId = (val: string) => {
@@ -24,10 +26,63 @@ export const useDeliveryOrdersPage = () => {
     setCurrentPage(1)
   }
 
+  const handleFilterStatus = (val: string) => {
+    setFilterStatus(val)
+    setCurrentPage(1)
+  }
+
+  const handleFilterDateType = (val: string) => {
+    setFilterDateType(val)
+    setCurrentPage(1)
+    // Reset custom date range when switching away from custom
+    if (val !== "custom") {
+      setFilterDateRange(undefined)
+    }
+  }
+
   const handleFilterDateRange = (range: DateRange | undefined) => {
     setFilterDateRange(range)
     setCurrentPage(1)
   }
+
+  // Compute the actual date range based on dateType
+  const computedDateRange = useMemo(() => {
+    const today = new Date()
+    
+    switch (filterDateType) {
+      case "today":
+        return {
+          from: startOfDay(today),
+          to: endOfDay(today),
+        }
+      case "upcoming":
+        return {
+          from: startOfDay(addDays(today, 1)),
+          to: undefined,
+        }
+      case "old":
+        return {
+          from: undefined,
+          to: endOfDay(addDays(today, -1)),
+        }
+      case "custom":
+        return filterDateRange
+      default:
+        return undefined
+    }
+  }, [filterDateType, filterDateRange])
+
+  const clearFilters = () => {
+    setSearchInput("")
+    setSearch("")
+    setFilterDispensaryId("")
+    setFilterStatus("")
+    setFilterDateType("today")
+    setFilterDateRange(undefined)
+    setCurrentPage(1)
+  }
+
+  const hasActiveFilters = !!search || !!filterDispensaryId || !!filterStatus || filterDateType !== "today"
 
   const pageSize = 20
 
@@ -45,8 +100,9 @@ export const useDeliveryOrdersPage = () => {
     limit: pageSize,
     search: search || undefined,
     dispensaryId: filterDispensaryId || undefined,
-    deliveryDateFrom: filterDateRange?.from ? format(filterDateRange.from, "yyyy-MM-dd") : undefined,
-    deliveryDateTo: filterDateRange?.to ? format(filterDateRange.to, "yyyy-MM-dd") : undefined,
+    status: filterStatus || undefined,
+    deliveryDateFrom: computedDateRange?.from ? format(computedDateRange.from, "yyyy-MM-dd") : undefined,
+    deliveryDateTo: computedDateRange?.to ? format(computedDateRange.to, "yyyy-MM-dd") : undefined,
   })
 
   const toggleViewMode = () => {
@@ -115,7 +171,13 @@ export const useDeliveryOrdersPage = () => {
     setSearchInput,
     filterDispensaryId,
     setFilterDispensaryId: handleFilterDispensaryId,
+    filterStatus,
+    setFilterStatus: handleFilterStatus,
+    filterDateType,
+    setFilterDateType: handleFilterDateType,
     filterDateRange,
     setFilterDateRange: handleFilterDateRange,
+    clearFilters,
+    hasActiveFilters,
   }
 }

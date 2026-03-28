@@ -2,15 +2,7 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { LayoutGrid, Table, Columns2, Search, X } from "lucide-react"
+import { LayoutGrid, Table, Columns2 } from "lucide-react"
 import { useDeliveryOrdersPage } from "./useDeliveryOrdersPage"
 import { OrderCardView } from "./OrderCardView"
 import { OrderTableView } from "./OrderTableView"
@@ -19,7 +11,7 @@ import { ViewOrderDetailsModal } from "./ViewOrderDetailsModal"
 import { CreateOrderModal } from "./CreateOrderModal"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
 import { Pagination } from "@/components/Pagination"
-import { FormDateRangePicker } from "@/components/fields/FormDateRangePicker"
+import { OrderFilters } from "./OrderFilters"
 import { useDeleteDeliveryOrderMutation } from "@/app/api/react-query/deliveryOrders"
 import { useDeliveryConnections } from "@/app/api/react-query/connections"
 import { toast } from "react-toastify"
@@ -49,8 +41,14 @@ export default function DeliveryOrdersPage() {
     setSearchInput,
     filterDispensaryId,
     setFilterDispensaryId,
+    filterStatus,
+    setFilterStatus,
+    filterDateType,
+    setFilterDateType,
     filterDateRange,
     setFilterDateRange,
+    clearFilters,
+    hasActiveFilters,
   } = useDeliveryOrdersPage()
 
   const deleteOrderMutation = useDeleteDeliveryOrderMutation()
@@ -59,14 +57,6 @@ export default function DeliveryOrdersPage() {
   const dispensaryOptions = (connections ?? [])
     .filter(c => c.status === "ACTIVE")
     .map(c => ({ value: c.dispensary!.id, label: c.dispensary!.name }))
-
-  const hasActiveFilters = !!searchInput || !!filterDispensaryId || !!filterDateRange?.from
-
-  const clearFilters = () => {
-    setSearchInput("")
-    setFilterDispensaryId("")
-    setFilterDateRange(undefined)
-  }
 
   const handleConfirmDelete = async () => {
     if (!deletingOrder) return
@@ -83,50 +73,24 @@ export default function DeliveryOrdersPage() {
     <DashboardLayout role="delivery">
       <div className="space-y-6 p-4">
         <div className="flex items-center justify-between">
-          <div className="flex flex-1 flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-50 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name, phone, address..."
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              className="pl-9 flex-1"
-            />
-          </div>
-
-          <Select
-            value={filterDispensaryId || "all"}
-            onValueChange={val => setFilterDispensaryId(val === "all" ? "" : val)}
-          >
-            <SelectTrigger className="w-50">
-              <SelectValue placeholder="All Dispensaries" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Dispensaries</SelectItem>
-              {dispensaryOptions.map(opt => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <FormDateRangePicker
-            dateRange={filterDateRange}
+          <OrderFilters
+            searchInput={searchInput}
+            onSearchChange={setSearchInput}
+            filterDispensaryId={filterDispensaryId}
+            onDispensaryChange={setFilterDispensaryId}
+            filterStatus={filterStatus}
+            onStatusChange={setFilterStatus}
+            filterDateType={filterDateType}
+            onDateTypeChange={setFilterDateType}
+            filterDateRange={filterDateRange}
             onDateRangeChange={setFilterDateRange}
-            onApply={setFilterDateRange}
-            placeholder="Filter by delivery date"
-            className="w-64"
+            dispensaryOptions={dispensaryOptions}
+            hasActiveFilters={hasActiveFilters}
+            onClearFilters={clearFilters}
           />
-
-          {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1 text-muted-foreground">
-              <X className="h-4 w-4" />
-              Clear filters
-            </Button>
-          )}
+          
         </div>
-          <div className="flex items-center">
+        <div className="flex items-center justify-end">
             <Button
               variant={viewMode === "card" ? "secondary" : "outline"}
               size="icon"
@@ -156,10 +120,6 @@ export default function DeliveryOrdersPage() {
             </Button>
             <Button className="ml-4" onClick={openCreateModal}>Create New Order</Button>
           </div>
-        </div>
-
-        {/* Filter bar */}
-        
 
         {isLoading && (
           <div className="text-center py-12">

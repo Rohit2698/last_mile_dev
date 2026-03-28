@@ -19,6 +19,7 @@ interface DeliveryOrdersQueryParams {
   limit?: number
   search?: string
   dispensaryId?: string
+  status?: string
   deliveryDateFrom?: string
   deliveryDateTo?: string
 }
@@ -31,6 +32,7 @@ export const useDeliveryOrdersQuery = (params?: DeliveryOrdersQueryParams) => {
       params?.limit,
       params?.search,
       params?.dispensaryId,
+      params?.status,
       params?.deliveryDateFrom,
       params?.deliveryDateTo,
     ],
@@ -43,6 +45,7 @@ export const useDeliveryOrdersQuery = (params?: DeliveryOrdersQueryParams) => {
             limit: params?.limit || 20,
             ...(params?.search ? { search: params.search } : {}),
             ...(params?.dispensaryId ? { dispensaryId: params.dispensaryId } : {}),
+            ...(params?.status ? { status: params.status } : {}),
             ...(params?.deliveryDateFrom ? { deliveryDateFrom: params.deliveryDateFrom } : {}),
             ...(params?.deliveryDateTo ? { deliveryDateTo: params.deliveryDateTo } : {}),
           },

@@ -47,7 +47,7 @@ const navigationItems: Record<"dispensary" | "delivery" | "admin", NavItem[]> = 
     { label: "Connections", href: "/delivery/connections", icon: Link2 },
     { label: "Route Optimization", href: "/delivery/route-optimization", icon: Pin },
     { label: "Profile", href: "/delivery/profile", icon: User },
-    { label: "Settings", href: "/delivery/settings", icon: Settings },
+    { label: "Configuration", href: "/delivery/configuration", icon: Settings },
   ],
   admin: [
     { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },

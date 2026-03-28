@@ -341,22 +341,22 @@ const updateOnboardRequirements = async (
 const fetchNotificationSettings = async (): Promise<NotificationSettings> => {
   const res = await deliveryApiClient.get(`/delivery-partner/notification`)
   return {
-    emailNotification: res.data.data.emailNotification,
-    smsNotification: res.data.data.smsNotification,
+    emailNotification: res.data.data.notificationEmail,
+    smsNotification: res.data.data.notificationSms,
   } as NotificationSettings
 }
 
 const updateNotificationSettings = async (
   settings: UpdateNotificationSettingsRequest,
 ): Promise<NotificationSettings> => {
-  const user = await JSON.parse(
-    localStorage.getItem("deliveryPartnerUser") || "{}",
-  )
-  return deliveryApiClient.put(`/delivery-partner/notification`, {
-    emailNotification: settings.emailNotification,
-    smsNotification: settings.smsNotification,
-    id: Number(user.id),
+  const response = await deliveryApiClient.put(`/delivery-partner/notification`, {
+    notificationEmail: settings.emailNotification,
+    notificationSms: settings.smsNotification,
   })
+  return {
+    emailNotification: response.data.data.notificationEmail,
+    smsNotification: response.data.data.notificationSms,
+  } as NotificationSettings
 }
 
 // React Query hooks - General Settings

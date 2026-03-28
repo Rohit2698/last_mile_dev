@@ -36,3 +36,15 @@ export const formatPhone = (phone: string): string => {
 
   return phone
 }
+
+export const parseZipCodes = (zipCodesString: string): string[] => {
+  return zipCodesString
+    .split(',')
+    .map(zip => zip.trim())
+    .filter(zip => zip.length > 0);
+};
+
+export const formatZipCodes = (zipCodes: string[]): string => {
+  return zipCodes.join(', ');
+};
+
